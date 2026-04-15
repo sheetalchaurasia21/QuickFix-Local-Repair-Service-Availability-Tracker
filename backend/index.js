@@ -6,6 +6,9 @@ import cookieParser from "cookie-parser";
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
+import { userRouter} from './routes/user.routes.js'
+import { bookingRouter} from './routes/booking.routes.js'
+
 
 const app=express();
 
@@ -20,9 +23,12 @@ app.use(cors({
 app.use(cookieParser())
 app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
-app.get("/", (req, res)=>{
-    res.send("Hello World")
-})
+// app.get("/", (req, res)=>{
+//     res.send("Hello World")
+// })
+
+app.use('/user',userRouter)
+app.use('/booking',bookingRouter)
 
 const PORT=process.env.PORT
 app.listen(PORT, ()=>{
