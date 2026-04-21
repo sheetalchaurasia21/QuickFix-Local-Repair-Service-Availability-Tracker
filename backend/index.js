@@ -6,8 +6,9 @@ import cookieParser from "cookie-parser";
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
-import { userRouter} from './routes/user.routes.js'
-import { bookingRouter} from './routes/booking.routes.js'
+import customerRouter from './routes/customer.routes.js'
+import bookingRouter from './routes/booking.routes.js'
+import providerRouter from './routes/provider.routes.js';
 
 
 const app=express();
@@ -27,8 +28,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 //     res.send("Hello World")
 // })
 
-app.use('/user',userRouter)
-app.use('/booking',bookingRouter)
+app.use('/api/customer',customerRouter)
+app.use('/api/provider',providerRouter)
+app.use('/api/booking',bookingRouter)
 
 const PORT=process.env.PORT
 app.listen(PORT, ()=>{

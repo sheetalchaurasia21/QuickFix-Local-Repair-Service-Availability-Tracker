@@ -1,0 +1,234 @@
+import Provider from "../models/provider.model.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+export const signupProvider = async (req, res) => {
+  try {
+    const { name, email, password, phone, serviceType, availability, profileImage } = req.body;
+
+    if (!name || !email || !password || !phone || !serviceType) {
+      return res.status(400).json({ message: "Required fields missing" });
+    }
+
+    const existing = await Provider.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newProvider = await Provider.create({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      serviceType,
+      availability,
+      profileImage: profileImage || ""
+    });
+
+    const token = jwt.sign(
+      { id: newProvider._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    const userResponse = newProvider.toObject();
+    delete userResponse.password;
+
+    res.status(201).json({
+      message: "Provider registered",
+      provider: userResponse
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const loginProvider = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const provider = await Provider.findOne({ email: email.toLowerCase() });
+    if (!provider) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, provider.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { id: provider._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    const userResponse = provider.toObject();
+    delete userResponse.password;
+
+    res.status(200).json({
+      message: "Login successful",
+      provider: userResponse
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const logoutProvider = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "Strict",
+      secure: false
+    });
+
+    res.status(200).json({ message: "Logged out successfully" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateProviderProfile = async (req, res) => {
+  try {
+    const providerId = req.user.id;
+
+    const { name, email, phone, serviceType, availability, profileImage } = req.body;
+
+    if (email) {
+      const existing = await Provider.findOne({ email });
+      if (existing && existing._id.toString() !== providerId) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+    }
+
+    const updateData = {
+      ...(name && { name }),
+      ...(email && { email }),
+      ...(phone && { phone }),
+      ...(serviceType && { serviceType }),
+      ...(availability && { availability }),
+      ...(profileImage && { profileImage })
+    };
+
+    const updated = await Provider.findByIdAndUpdate(
+      providerId,
+      updateData,
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updated) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    res.status(200).json({
+      message: "Profile updated",
+      provider: updated
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getAllProviders = async (req, res) => {
+  try {
+    const providers = await Provider.find().select("-password");
+    res.status(200).json(providers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+export const searchProviderByName = async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    const providers = await Provider.find({
+      name: { $regex: name, $options: "i" }
+    }).select("-password");
+
+    res.status(200).json(providers);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+export const toggleAvailability = async (req, res) => {
+  try {
+    const providerId = req.user.id;
+
+    const provider = await Provider.findById(providerId);
+    if (!provider) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    provider.isAvailableNow = !provider.isAvailableNow;
+    await provider.save();
+
+    res.status(200).json({
+      message: "Availability updated",
+      isAvailableNow: provider.isAvailableNow
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getCurrentUser = async(req, res) =>{
+  try {
+    // assuming middleware adds user id → req.user.id
+    const user = await Provider.findById(req.user.id).select("-password");
+
+    // let { id }= req.params
+    // const user = await Customer.findById(id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export const searchByService = async (req, res) => {
+  try {
+    const { service } = req.query;
+
+    const providers = await Provider.find({
+      serviceType: { $in: [service] },
+    //   isAvailableNow: true 
+    }).select("-password");
+
+    res.status(200).json(providers);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
