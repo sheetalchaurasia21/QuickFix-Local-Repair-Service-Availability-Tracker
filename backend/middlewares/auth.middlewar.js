@@ -11,9 +11,10 @@ function auth(re,res){
         next()
         
     }catch(e){
-        console.log(e);
+        console.log(e); 
         res.status(401).send({message:e})
     }
 
 }
+
 export default auth;
