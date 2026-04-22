@@ -1,12 +1,20 @@
-// import Login from "./pages/Login.js";
-// function App() {
-//   return <Login />;
-// }
-// export default App;
-
-import Register from "./pages/Register.jsx";
+import { Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import CustomerHome from "./pages/CustomerHome";
+import ProviderHome from "./pages/ProviderHome";
 
 function App() {
-  return <Register />;
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/customer" element={<CustomerHome />} />
+      <Route path="/provider" element={<ProviderHome />} />
+    </Routes>
+  );
 }
+
 export default App;
