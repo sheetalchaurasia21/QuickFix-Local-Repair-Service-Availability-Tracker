@@ -1,80 +1,194 @@
-function Signup() {
+import { useState } from "react";
+
+export default function Signup() {
+  const [role, setRole] = useState("customer");
+
+  const input =
+    "w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400";
+
   return (
-    <div className="container-fluid vh-100">
-      <div className="row h-100">
+    <div className="min-h-screen bg-[#F5F7FA] flex flex-col">
 
-        {/* LEFT - Customer */}
-        <div className="col-md-6 d-flex flex-column justify-content-center align-items-center bg-light">
+      {/* MAIN */}
+      <div className="flex flex-1 p-6 gap-6">
 
-          <h2 className="text-success mb-2">Customer Sign Up</h2>
-          <p className="text-muted">Create your account to get started</p>
+        {/* LEFT PANEL */}
+        <div className="w-1/3 bg-gradient-to-b from-green-900 to-green-700 text-white p-8 rounded-3xl flex flex-col justify-between">
 
-          <div className="w-50 mt-3">
-            <input className="form-control mb-3" placeholder="Full Name" />
-            <input className="form-control mb-3" placeholder="Email Address" />
-            <input type="password" className="form-control mb-3" placeholder="Password" />
-            <input type="password" className="form-control mb-3" placeholder="Confirm Password" />
+          <div>
+            <h1 className="text-xl font-bold mb-6">QuickFix</h1>
 
-            <button className="btn btn-success w-100">
-              Next Step →
-            </button>
+            <h2 className="text-3xl font-bold">
+              Create your <span className="text-lime-400">account</span>
+            </h2>
 
-            <p className="text-center mt-3">
-              Already have an account? <span className="text-success">Login</span>
+            <p className="mt-4 text-gray-300">
+              Join thousands of customers and professionals.
             </p>
+          </div>
+
+          {/* SELECT CARD */}
+          <div className="bg-white text-black p-5 rounded-xl shadow">
+
+            <h3 className="font-semibold mb-4">Choose account type</h3>
+
+            {/* CUSTOMER */}
+            <div
+              onClick={() => setRole("customer")}
+              className={`flex items-center justify-between p-4 rounded-xl mb-3 cursor-pointer border ${
+                role === "customer"
+                  ? "bg-green-50 border-green-500"
+                  : "border-gray-300"
+              }`}
+            >
+              <div>
+                <p className="font-semibold">I'm a Customer</p>
+                <p className="text-sm text-gray-500">
+                  Book services near you
+                </p>
+              </div>
+              {role === "customer" && <span>✔</span>}
+            </div>
+
+            {/* PROVIDER */}
+            <div
+              onClick={() => setRole("provider")}
+              className={`flex items-center justify-between p-4 rounded-xl cursor-pointer border ${
+                role === "provider"
+                  ? "bg-green-50 border-green-500"
+                  : "border-gray-300"
+              }`}
+            >
+              <div>
+                <p className="font-semibold">I'm a Provider</p>
+                <p className="text-sm text-gray-500">
+                  Offer your services
+                </p>
+              </div>
+              {role === "provider" && <span>✔</span>}
+            </div>
+
+            <div className="mt-4 text-sm text-gray-500">
+              🔒 Your data is safe with us.
+            </div>
           </div>
         </div>
 
-        {/* RIGHT - Provider */}
-        <div className="col-md-6 d-flex flex-column justify-content-center align-items-center bg-white">
+        {/* RIGHT PANEL */}
+        <div className="w-2/3 flex gap-6">
 
-          <h2 className="text-warning mb-2">Provider Sign Up</h2>
-          <p className="text-muted">Create your account to get started</p>
+          {/* FORM CARD */}
+          <div className="bg-white p-8 rounded-2xl shadow w-full">
 
-          <div className="w-50 mt-3">
-            <input className="form-control mb-3" placeholder="Business Name" />
+            {/* HEADER */}
+            <div className="text-center mb-6">
+              <div className="text-3xl mb-2">
+                {role === "customer" ? "👤" : "🧰"}
+              </div>
 
-            <select className="form-select mb-3">
-              <option>Business Type</option>
-              <option>Electrician</option>
-              <option>Plumber</option>
-            </select>
+              <h2 className="text-2xl font-bold">
+                <span className="text-orange-500">
+                  {role === "customer" ? "Customer" : "Provider"}
+                </span>{" "}
+                Sign Up
+              </h2>
 
-            <select className="form-select mb-3">
-              <option>Years of Experience</option>
-              <option>1-3</option>
-              <option>3-5</option>
-              <option>5+</option>
-            </select>
-
-            <input className="form-control mb-3" placeholder="Registration Number" />
-
-            <select className="form-select mb-3">
-              <option>Services Offered</option>
-              <option>Repair</option>
-              <option>Installation</option>
-            </select>
-
-            <div className="form-check mb-3">
-              <input className="form-check-input" type="checkbox" />
-              <label className="form-check-label">
-                I confirm all information is accurate
-              </label>
+              <p className="text-gray-500 text-sm">
+                Create your account to get started
+              </p>
             </div>
 
-            <button className="btn btn-warning w-100">
+            {/* STEPS */}
+            <div className="flex justify-between items-center mb-6 text-sm">
+              {["1", "2", "3"].map((step, i) => (
+                <div key={i} className="flex-1 text-center">
+                  <div
+                    className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${
+                      i === 0
+                        ? "bg-lime-400 text-black"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    {step}
+                  </div>
+                  <p className="mt-1 text-gray-500">
+                    {i === 0
+                      ? role === "customer"
+                        ? "Account Info"
+                        : "Business Info"
+                      : i === 1
+                      ? "Contact Info"
+                      : "Verify"}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* SECTION TITLE */}
+            <h3 className="font-semibold mb-4">
+              {role === "customer"
+                ? "Account Information"
+                : "Business Information"}
+            </h3>
+
+            {/* FORM */}
+            <div className="space-y-3 ">
+
+              {/* COMMON */}
+              <input className={input} placeholder="Full Name" />
+              <input className={input} placeholder="Email" />
+              <input type="password" className={input} placeholder="Password" />
+
+              {/* CONDITIONAL */}
+              {role === "customer" ? (
+                <>
+                  <input className={input} placeholder="Confirm Password" />
+                </>
+              ) : (
+                <>
+                  <input className={input} placeholder="Business Type" />
+                  <input className={input} placeholder="Experience" />
+                </>
+              )}
+
+            </div>
+
+            {/* BUTTON */}
+            <button className="w-full mt-6 bg-lime-400 py-3 rounded-lg font-semibold hover:bg-lime-500">
               Next Step →
             </button>
 
-            <p className="text-center mt-3">
-              Already have an account? <span className="text-warning">Login</span>
+            {/* LOGIN */}
+            <p className="text-center mt-4 text-sm">
+              Already have an account?{" "}
+              <span className="text-orange-500 cursor-pointer">
+                Login
+              </span>
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <div className="bg-white mx-6 mb-6 rounded-2xl shadow p-6 flex justify-between text-sm">
+
+        <div className="flex items-center gap-2">
+          ✔ Trusted Platform
+        </div>
+
+        <div className="flex items-center gap-2">
+          ⭐ Quality Service
+        </div>
+
+        <div className="flex items-center gap-2">
+          ⏱ 24/7 Support
+        </div>
+
+        <div className="flex items-center gap-2">
+          🔒 Secure & Safe
         </div>
 
       </div>
     </div>
   );
 }
-
-export default Signup;
