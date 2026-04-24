@@ -4,7 +4,7 @@
 // }
 // export default App;
 
-import Register from "./pages/Register.js";
+import Register from "./pages/Register.jsx";
 
 function App() {
   return <Register />;
