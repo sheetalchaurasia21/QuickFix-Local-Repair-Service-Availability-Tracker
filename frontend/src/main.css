@@ -1,0 +1,4 @@
+@import "tailwindcss";
+.input {
+  @apply w-full p-3 border rounded-lg;
+}
