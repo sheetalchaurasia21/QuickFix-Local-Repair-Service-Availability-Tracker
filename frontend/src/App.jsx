@@ -5,18 +5,22 @@ import Signup from "./pages/Signup";
 import CustomerHome from "./pages/CustomerHome";
 import ProviderHome from "./pages/ProviderHome";
 import { Toaster } from "react-hot-toast";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 function App() {
   return (
     <>
-    <Toaster position="top-center" />
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/customer" element={<CustomerHome />} />
-      <Route path="/provider" element={<ProviderHome />} />
-    </Routes>
+      <Toaster position="top-center" />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/customer" element={<CustomerHome />} />
+        <Route path="/provider" element={<ProviderHome />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+      </Routes>
     </>
   );
 }

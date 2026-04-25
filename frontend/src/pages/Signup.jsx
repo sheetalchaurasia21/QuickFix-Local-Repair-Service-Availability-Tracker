@@ -3,12 +3,14 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function Signup() {
   const [role, setRole] = useState("customer");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     name: "",
@@ -128,6 +130,7 @@ export default function Signup() {
       }
 
       toast.success("Signup Successful! Redirecting...");
+      login(user, role);
 
       setTimeout(() => {
         if (role === "customer") {

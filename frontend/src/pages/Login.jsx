@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [role, setRole] = useState("customer");
@@ -35,6 +36,7 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(user));
 
       toast.success("Login Successful!");
+      login(user, "admin");
 
       setTimeout(() => {
         if (role === "customer") {
