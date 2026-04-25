@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 function auth(req,res,next){
     const token=req.cookies.token
     if(!token){
-        res.statur(401).send({message:"Not Logged In"});
+        res.status(401).send({message:"Not Logged In"});
     }
     try{
         let decode=jwt.verify(token, process.env.JWT_SECRET);
