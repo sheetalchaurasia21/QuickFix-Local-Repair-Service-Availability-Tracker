@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [role, setRole] = useState("customer");
@@ -16,39 +17,42 @@ export default function Login() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      // 🔥 Change API routes accordingly
-      const url =
-        role === "customer"
-          ? "http://localhost:5000/api/customer/login"
-          : "http://localhost:5000/api/provider/login";
+  try {
+    const url =
+      role === "customer"
+        ? "http://localhost:8000/api/customer/login"
+        : "http://localhost:8000/api/provider/login";
 
-      const res = await axios.post(url, formData);
+    const res = await axios.post(url, formData, {
+      withCredentials: true,
+    });
 
-      if (res.status === 200) {
-        const user = res.data;
+    if (res.status === 200) {
+      const user = res.data.user;
 
-        // store user (optional)
-        localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
 
-        // 🔥 Redirect based on role
+      toast.success("Login Successful!");
+
+      setTimeout(() => {
         if (role === "customer") {
-          navigate("/customer/home");
+          navigate("/customer");
         } else {
-          navigate("/provider/dashboard");
+          navigate("/provider");
         }
-      }
-    } catch (error) {
-      console.log(error);
-      alert("Invalid credentials");
+      }, 2000);
     }
-  };
+  } catch (error) {
+    console.log(error.message);
+
+    toast.error("Invalid credentials");
+  }
+};
 
   return (
     <div className="min-h-screen flex bg-gray-100">
-      
       {/* LEFT PANEL */}
       <div className="w-1/3 bg-[#0F3D2E] text-white p-10 flex flex-col justify-between">
         <div>

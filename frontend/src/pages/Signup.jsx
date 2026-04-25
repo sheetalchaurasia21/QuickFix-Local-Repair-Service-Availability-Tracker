@@ -107,7 +107,6 @@ export default function Signup() {
           { withCredentials: true },
         );
       } else {
-        // 🔥 Convert multiple days → availability array
         const availability = form.selectedDays.map((day) => ({
           day,
           startTime: form.startTime,
@@ -128,7 +127,7 @@ export default function Signup() {
         );
       }
 
-      toast.success("Signup Successful 🚀 Redirecting...");
+      toast.success("Signup Successful! Redirecting...");
 
       setTimeout(() => {
         if (role === "customer") {
