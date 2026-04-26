@@ -42,14 +42,42 @@ export default function Signup() {
     setStep(step + 1);
   };
 
-  const handleSubmit = () => {
-    if (!form.agree) {
-      alert("Accept terms first");
-      return;
-    }
-    console.log(form);
-    alert("Signup Done 🚀");
-  };
+  const handleSubmit = async () => {
+  try {
+    console.log("FORM 👉", form);
+
+    const payload =
+      role === "customer"
+        ? {
+            name: form.name,
+            email: form.email,
+            password: form.password,
+            phone: form.phone,
+          }
+        : {
+            name: form.name,
+            email: form.email,
+            password: form.password,
+            phone: form.phone,
+            serviceType: form.businessType,
+            experience: form.experience,
+          };
+
+    const url =
+      role === "customer"
+        ? "http://localhost:5000/api/customer/signup"
+        : "http://localhost:5000/api/provider/signup";
+
+    const res = await axios.post(url, payload);
+
+    console.log("SUCCESS 👉", res.data);
+
+    alert("Signup successful 🎉");
+  } catch (err) {
+    console.log("ERROR 👉", err.response?.data);
+    alert(err.response?.data?.message || "Signup failed");
+  }
+};
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
