@@ -77,22 +77,24 @@ export default function Signup() {
 };
 
   const handleSubmit = async () => {
-
     if (!form.agree) {
       toast("Accept terms first");
       return;
     }
-    if (form.password !== form.confirmPassword) {
-        toast("Passwords do not match");
-        return;
-      }
 
-    try {
-      setLoading(true);
-      if (role === "customer") {
-        await axios.post(
-          "http://localhost:8000/api/customer/signup",
-          {
+    if (!form.password || !form.confirmPassword) {
+      toast("Enter password and confirm password");
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      toast("Passwords do not match");
+      return;
+    }
+
+    const payload =
+      role === "customer"
+        ? {
             name: form.name,
             email: form.email,
             password: form.password,
@@ -103,49 +105,43 @@ export default function Signup() {
               state: form.state,
               pinCode: form.pinCode,
             },
-          },
-          { withCredentials: true },
-        );
-      } else {
-        // 🔥 Convert multiple days → availability array
-        const availability = form.selectedDays.map((day) => ({
-          day,
-          startTime: form.startTime,
-          endTime: form.endTime,
-        }));
-
-        await axios.post(
-          "http://localhost:8000/api/provider/signup",
-          {
+          }
+        : {
             name: form.name,
             email: form.email,
             password: form.password,
             phone: form.phone,
-            serviceType: [form.businessType],
-            availability,
-          },
-          { withCredentials: true },
-        );
-      }
+            serviceType: form.businessType,
+            availability: form.selectedDays.map((day) => ({
+              day,
+              startTime: form.startTime,
+              endTime: form.endTime,
+            })),
+          };
 
-      toast.success("Signup Successful 🚀 Redirecting...");
+    try {
+      setLoading(true);
+
+      const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const url = `${apiBaseUrl}/api/${role}/signup`;
+
+      const res = await axios.post(url, payload, { withCredentials: true });
+
+      toast.success("Signup successful 🚀 Redirecting...");
+      console.log("SUCCESS 👉", res.data);
 
       setTimeout(() => {
-        if (role === "customer") {
-          navigate("/customer");
-        } else {
-          navigate("/provider");
-        }
-      }, 3000);
+        navigate(role === "customer" ? "/customer" : "/provider");
+      }, 2000);
     } catch (err) {
-      toast.error("Signup failed");
-      console.error(err.response?.data?.message)
+      toast.error(err.response?.data?.message || "Signup failed");
+      console.error(err?.response?.data || err);
     } finally {
       setLoading(false);
     }
   };
 
- useEffect(() => {
+  useEffect(() => {
   if (role === "customer") {
     setForm({
       name: "",
@@ -164,6 +160,7 @@ export default function Signup() {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "",
       businessType: "",
       experience: "",
       phone: "",
