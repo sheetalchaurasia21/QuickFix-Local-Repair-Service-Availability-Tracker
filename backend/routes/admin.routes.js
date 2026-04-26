@@ -2,24 +2,33 @@ import express from "express";
 import {
   signupAdmin,
   loginAdmin,
-  logoutAdmin
+  logoutAdmin,
+  getDashboardStats,
+  getMonthlyBookings,
+  getAllCustomersAdmin,
+  getAllProvidersAdmin,
+  getAllBookingsAdmin
 } from "../controllers/admin.controller.js";
 
-import auth from "../middleware/auth.middleware.js";
+import auth from "../middlewares/auth.middleware.js";
 
-const adminRouter = express.Router();
+const router = express.Router();
 
-adminRouter.post("/signup", signupAdmin);
-adminRouter.post("/login", loginAdmin);
-adminRouter.post("/logout", auth, logoutAdmin);
+router.post("/signup", signupAdmin);
+router.post("/login", loginAdmin);
+router.post("/logout", auth, logoutAdmin);
 
-adminRouter.get("/bookings", auth, (req, res, next) => {
+// ADMIN CHECK MIDDLEWARE
+const isAdmin = (req, res, next) => {
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "Access denied" });
   }
   next();
-}, (req, res) => {
-  res.redirect("/api/booking"); 
-});
+};
+router.get("/dashboard", auth, isAdmin, getDashboardStats);
+router.get("/analytics/monthly", auth, isAdmin, getMonthlyBookings);
+router.get("/customers", auth, isAdmin, getAllCustomersAdmin);
+router.get("/providers", auth, isAdmin, getAllProvidersAdmin);
+router.get("/bookings", auth, isAdmin, getAllBookingsAdmin);
 
-export default adminRouter;
+export default router;

@@ -1,4 +1,7 @@
-import Admin from "../models/admin.model";
+import Admin from "../models/admin.model.js";
+import Booking from "../models/booking.model.js";
+import Customer from "../models/customer.model.js";
+import Provider from "../models/provider.model.js";
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -67,3 +70,95 @@ export const logoutAdmin = async (req, res) => {
   res.status(200).json({ message: "Logged out" });
 };
 
+
+
+// DASHBOARD STATS
+export const getDashboardStats = async (req, res) => {
+  try {
+    const totalBookings = await Booking.countDocuments();
+    const ongoingBookings = await Booking.countDocuments({ status: "ongoing" });
+
+    const totalCustomers = await Customer.countDocuments();
+    const totalProviders = await Provider.countDocuments();
+const completedBookings = await Booking.countDocuments({
+  status: "completed"
+});
+
+const cancelledBookings = await Booking.countDocuments({
+  status: "cancelled"
+});
+
+res.status(200).json({
+  stats: {
+    totalBookings,
+    ongoingBookings,
+    completedBookings,
+    cancelledBookings,
+    totalCustomers,
+    totalProviders
+  },
+  bookings
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+// MONTHLY ANALYTICS (Bookings per month)
+export const getMonthlyBookings = async (req, res) => {
+  try {
+    const data = await Booking.aggregate([
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          total: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.status(200).json(data);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+// 👥 ALL CUSTOMERS
+export const getAllCustomersAdmin = async (req, res) => {
+  try {
+    const users = await Customer.find().select("-password");
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+// 🛠 ALL PROVIDERS
+export const getAllProvidersAdmin = async (req, res) => {
+  try {
+    const providers = await Provider.find().select("-password");
+    res.status(200).json(providers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+// 📦 ALL BOOKINGS
+export const getAllBookingsAdmin = async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .populate("userId", "name email")
+      .populate("providerId", "name serviceType");
+
+    res.status(200).json(bookings);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

@@ -9,6 +9,7 @@ import { dirname } from 'node:path';
 import customerRouter from './routes/customer.routes.js'
 import bookingRouter from './routes/booking.routes.js'
 import providerRouter from './routes/provider.routes.js';
+import adminRouter from './routes/admin.routes.js';
 
 
 const app=express();
@@ -31,6 +32,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 app.use('/api/customer',customerRouter)
 app.use('/api/provider',providerRouter)
 app.use('/api/booking',bookingRouter)
+app.use("/api/admin", adminRouter);
 
 const PORT=process.env.PORT
 app.listen(PORT, ()=>{
