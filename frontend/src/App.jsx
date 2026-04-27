@@ -6,27 +6,24 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import CustomerHome from "./pages/CustomerHome";
 import ProviderHome from "./pages/ProviderHome";
-import Services from "./pages/Services";
-import ProviderProfile from "./pages/ProviderProfile";
+import { Toaster } from "react-hot-toast";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 function App() {
   return (
     <>
       <Toaster position="top-center" />
-
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
         <Route path="/customer" element={<CustomerHome />} />
         <Route path="/provider" element={<ProviderHome />} />
-
-        <Route path="/services" element={<Services />} />
-        <Route path="/provider/:id" element={<ProviderProfile />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
       </Routes>
     </>
   );
 }
-
 export default App;

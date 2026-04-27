@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const availabilitySchema = new mongoose.Schema({
   day: {
     type: String, // e.g., "Monday"
-    required: true
+    required: true,
+    default:"All"
   },
   startTime: {
     type: String, // "09:00"

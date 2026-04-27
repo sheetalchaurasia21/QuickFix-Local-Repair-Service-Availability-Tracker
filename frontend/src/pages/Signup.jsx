@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function Signup() {
   const [role, setRole] = useState("customer");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
   const [form, setForm] = useState({
     name: "",
@@ -104,84 +107,66 @@ export default function Signup() {
   };
 
   const handleSubmit = async () => {
+
     try {
       setLoading(true);
-      console.log("FORM 👉", form);
-
-      // Validation
-      if (!form.agree) {
-        toast.error("Accept terms first");
-        setLoading(false);
-        return;
-      }
-
-      if (!form.password || !form.confirmPassword) {
-        toast.error("Enter password and confirm password");
-        return;
-      }
-
-      if (form.password !== form.confirmPassword) {
-        toast.error("Passwords do not match");
-        return;
-      }
-
-      if (form.password.length < 6) {
-        toast.error("Password must be at least 6 characters");
-        return;
-      }
-
-      // Build payload based on role
-      let payload;
+      let res;
       if (role === "customer") {
-        payload = {
-          name: form.name,
-          email: form.email,
-          password: form.password,
-          phone: form.phone,
-          address: {
-            addressLine1: form.addressLine1,
-            city: form.city,
-            state: form.state,
-            pinCode: form.pinCode,
+        res = await axios.post(
+          `${BACKEND_URL}/api/customer/signup`,
+          {
+            name: form.name,
+            email: form.email,
+            password: form.password,
+            phone: form.phone,
+            address: {
+              addressLine1: form.addressLine1,
+              city: form.city,
+              state: form.state,
+              pinCode: form.pinCode,
+            },
           },
-        };
+          { withCredentials: true },
+        );
       } else {
-        payload = {
-          name: form.name,
-          email: form.email,
-          password: form.password,
-          phone: form.phone,
-          serviceType: form.businessType,
-          experience: form.experience,
-          availability: form.selectedDays.map((day) => ({
-            day,
-            startTime: form.startTime,
-            endTime: form.endTime,
-          })),
-        };
+        const availability = form.selectedDays.map((day) => ({
+          day,
+          startTime: form.startTime,
+          endTime: form.endTime,
+        }));
+
+        res= await axios.post(
+          `${BACKEND_URL}/api/provider/signup`,
+          {
+            name: form.name,
+            email: form.email,
+            password: form.password,
+            phone: form.phone,
+            serviceType: [form.businessType],
+            availability,
+          },
+          { withCredentials: true },
+        );
       }
+      const user = res.data.user ;
+      login(user, role);
 
-      const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const url = `${apiBaseUrl}/api/${role}/signup`;
-
-      const res = await axios.post(url, payload, { withCredentials: true });
-
-      toast.success("Signup successful 🚀 Redirecting...");
-      console.log("SUCCESS 👉", res.data);
+      toast.success("Signup Successful! Redirecting...");
 
       setTimeout(() => {
-        navigate(role === "customer" ? "/customer" : "/provider");
-      }, 2000);
-      } catch (err) {
-        console.log("FULL ERROR 👉", err);
-        console.log("BACKEND ERROR 👉", err.response?.data);
-
-        toast.error(err.response?.data?.message || "Signup failed");
-      }
-     finally {
+        if (role === "customer") {
+          navigate("/customer");
+        } else {
+          navigate("/provider");
+        }
+      }, 3000);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Signup failed");
+      console.error(error)
+    } finally {
       setLoading(false);
     }
-  };
+  
 
   useEffect(() => {
     if (role === "customer") {
@@ -537,4 +522,4 @@ export default function Signup() {
       </div>
     </div>
   );
-}
+}}

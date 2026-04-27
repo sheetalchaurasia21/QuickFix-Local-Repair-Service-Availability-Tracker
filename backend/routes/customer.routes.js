@@ -20,9 +20,9 @@ customerRouter.post("/login", loginCustomer);
 customerRouter.post("/logout", auth, logoutCustomer);
 customerRouter.put("/update-profile", auth, updateProfile);
 customerRouter.get("/search", auth, searchUserByName);
-customerRouter.get("/me", auth, getCurrentUser);   
-customerRouter.get("/:id", auth, getUserByID);     
+customerRouter.get("/me", auth, getCurrentUser);  
 customerRouter.get("/", auth, getAllUsers);
+customerRouter.get("/:id", auth, getUserByID);     
 customerRouter.delete("/:id", auth, deleteUser);
 
 export default customerRouter;

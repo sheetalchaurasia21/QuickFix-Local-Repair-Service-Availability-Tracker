@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 export default function Login() {
+
   const [role, setRole] = useState("customer");
   const [formData, setFormData] = useState({
     email: "",
@@ -10,45 +15,49 @@ export default function Login() {
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+    
+  try {
+    const url =
+      role === "customer"
+        ? `${BACKEND_URL}/api/customer/login`
+        : `${BACKEND_URL}/api/provider/login`;
 
-    try {
-      // 🔥 Change API routes accordingly
-      const url =
-        role === "customer"
-          ? "http://localhost:5000/api/customer/login"
-          : "http://localhost:5000/api/provider/login";
+    const res = await axios.post(url, formData, {
+      withCredentials: true,
+    });
 
-      const res = await axios.post(url, formData);
+    if (res.status === 200) {
+      const user = res.data.user;
 
-      if (res.status === 200) {
-        const user = res.data;
+      // localStorage.setItem("user", JSON.stringify(user));
 
-        // store user (optional)
-        localStorage.setItem("user", JSON.stringify(user));
+      toast.success("Login Successful!");
+      login(user, role);
 
-        // 🔥 Redirect based on role
+      setTimeout(() => {
         if (role === "customer") {
-          navigate("/customer/home");
+          navigate("/customer");
         } else {
-          navigate("/provider/dashboard");
+          navigate("/provider");
         }
-      }
-    } catch (error) {
-      console.log(error);
-      alert("Invalid credentials");
+      }, 2000);
     }
-  };
+  } catch (error) {
+    console.log(error.message);
+    toast.error(error.response?.data?.message || "Login failed");
+  }
+};
 
   return (
     <div className="min-h-screen flex bg-gray-100">
-      
       {/* LEFT PANEL */}
       <div className="w-1/3 bg-[#0F3D2E] text-white p-10 flex flex-col justify-between">
         <div>

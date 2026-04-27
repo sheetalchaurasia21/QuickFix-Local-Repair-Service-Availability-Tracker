@@ -10,7 +10,9 @@ export const signupProvider = async (req, res) => {
       return res.status(400).json({ message: "Required fields missing" });
     }
 
-    const existing = await Provider.findOne({ email });
+    const emailLower = email.toLowerCase();
+
+    const existing = await Provider.findOne({ email: emailLower });
     if (existing) {
       return res.status(400).json({ message: "Email already registered" });
     }
@@ -19,7 +21,7 @@ export const signupProvider = async (req, res) => {
 
     const newProvider = await Provider.create({
       name,
-      email,
+      email: emailLower,
       password: hashedPassword,
       phone,
       serviceType,
@@ -45,7 +47,7 @@ export const signupProvider = async (req, res) => {
 
     res.status(201).json({
       message: "Provider registered",
-      provider: userResponse
+      user: userResponse
     });
 
   } catch (err) {
@@ -85,7 +87,7 @@ export const loginProvider = async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
-      provider: userResponse
+      user: userResponse
     });
 
   } catch (err) {
@@ -115,7 +117,8 @@ export const updateProviderProfile = async (req, res) => {
     const { name, email, phone, serviceType, availability, profileImage } = req.body;
 
     if (email) {
-      const existing = await Provider.findOne({ email });
+      const emailLower = email.toLowerCase();
+      const existing = await Provider.findOne({ email: emailLower });
       if (existing && existing._id.toString() !== providerId) {
         return res.status(400).json({ message: "Email already in use" });
       }
@@ -123,7 +126,7 @@ export const updateProviderProfile = async (req, res) => {
 
     const updateData = {
       ...(name && { name }),
-      ...(email && { email }),
+      ...(email && { email: email.toLowerCase() }),
       ...(phone && { phone }),
       ...(serviceType && { serviceType }),
       ...(availability && { availability }),
@@ -142,7 +145,7 @@ export const updateProviderProfile = async (req, res) => {
 
     res.status(200).json({
       message: "Profile updated",
-      provider: updated
+      user: updated
     });
 
   } catch (err) {

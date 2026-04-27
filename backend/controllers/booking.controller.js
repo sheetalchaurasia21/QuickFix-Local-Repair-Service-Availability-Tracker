@@ -105,7 +105,10 @@ export const getAllBookings = async (req, res) => {
 
     let bookings;
 
-    if (role === "provider") {
+    if (role === "admin") {
+      bookings = await Booking.find();
+    } 
+    else if (role === "provider") {
       bookings = await Booking.find({ providerId: userId });
     } else {
       bookings = await Booking.find({ userId });
