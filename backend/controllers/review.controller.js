@@ -1,4 +1,4 @@
-import Provider from "../models/provider.model";
+import Provider from "../models/provider.model.js";
 import Review from "../models/review.model.js";
 
 

@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import Customer from '../models/customer.model.js'
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import Review from "../models/Review.js";
+import Review from "../models/provider.model.js";
 
 async function signupCustomer(req, res) {
   try {
