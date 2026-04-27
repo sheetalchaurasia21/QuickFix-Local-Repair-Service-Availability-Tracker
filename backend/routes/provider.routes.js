@@ -13,6 +13,7 @@ import {
 } from "../controllers/provider.controller.js";
 
 import auth from "../middlewares/auth.middleware.js";
+import { getReviewsForProvider } from "../controllers/review.controller.js";
 
 const providerRouter = express.Router();
 
@@ -26,5 +27,9 @@ providerRouter.get("/service", auth, searchByService);          // ?service=plum
 providerRouter.get("/", auth, getAllProviders);
 providerRouter.patch("/toggle-availability", auth, toggleAvailability);
 providerRouter.get("/search-all", auth, searchProviders);
+router.get("/reviews", authMiddleware, async (req, res) => {
+  req.params.providerId = req.user.id; // 👈 inject providerId
+  return getReviewsForProvider(req, res);
+});
 
 export default providerRouter;

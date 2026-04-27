@@ -12,6 +12,7 @@ import {
 } from "../controllers/customer.controller.js";
 
 import auth from "../middlewares/auth.middleware.js";
+import { getReviewsByCustomer } from "../controllers/review.controller.js";
 
 const customerRouter = express.Router();
 
@@ -24,5 +25,6 @@ customerRouter.get("/me", auth, getCurrentUser);
 customerRouter.get("/", auth, getAllUsers);
 customerRouter.get("/:id", auth, getUserByID);     
 customerRouter.delete("/:id", auth, deleteUser);
+customerRouter.get("/reviews", auth, getReviewsByCustomer);
 
 export default customerRouter;

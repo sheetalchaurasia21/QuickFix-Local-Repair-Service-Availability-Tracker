@@ -1,6 +1,8 @@
 import Provider from "../models/provider.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import Review from "../models/Review.js";
+
 
 export const signupProvider = async (req, res) => {
   try {

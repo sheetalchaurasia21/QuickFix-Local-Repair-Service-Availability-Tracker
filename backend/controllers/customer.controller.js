@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import Customer from '../models/customer.model.js'
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import Review from "../models/Review.js";
 
 async function signupCustomer(req, res) {
   try {
@@ -244,6 +245,7 @@ async function getCurrentUser(req, res) {
   }
 }
 
+
 export {
     signupCustomer,
     loginCustomer,
@@ -255,3 +257,4 @@ export {
     deleteUser,
     getCurrentUser
 }
+
