@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -25,6 +24,7 @@ export default function Signup() {
 
     // provider
     businessType: "",
+    experience: "",
     selectedDays: [],
     startTime: "",
     endTime: "",
@@ -43,12 +43,24 @@ export default function Signup() {
   // ✅ STEP 1 VALIDATION
   const validateStep1 = () => {
     if (!form.name || !form.email) {
-      toast("Fill all fields");
+      toast.error("Fill all fields");
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      toast.error("Enter a valid email");
       return false;
     }
 
     if (role === "provider" && !form.businessType) {
-      toast("Enter service type");
+      toast.error("Enter service type");
+      return false;
+    }
+
+    if (role === "provider" && !form.experience) {
+      toast.error("Enter your experience");
       return false;
     }
 
@@ -59,123 +71,150 @@ export default function Signup() {
     // STEP 1 VALIDATION
     if (step === 1 && !validateStep1()) return;
 
-    // STEP 3 VALIDATION (password check BEFORE submit)
-    if (step === 3) {
-      if (!form.password) {
-        toast("Enter password");
+    // STEP 2 VALIDATION
+    if (step === 2) {
+      if (!form.phone) {
+        toast.error("Enter phone number");
         return;
       }
 
+      if (role === "customer") {
+        if (!form.addressLine1 || !form.city || !form.state || !form.pinCode) {
+          toast.error("Fill all address fields");
+          return;
+        }
+      } else {
+        if (form.selectedDays.length === 0) {
+          toast.error("Select at least one day");
+          return;
+        }
+        if (!form.startTime || !form.endTime) {
+          toast.error("Enter start and end time");
+          return;
+        }
+      }
     }
 
     setStep(step + 1);
   };
   const handleBack = () => {
-  if (step > 1) {
-    setStep(step - 1);
-  }
-};
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
 
   const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      console.log("FORM 👉", form);
 
-    if (!form.agree) {
-      toast("Accept terms first");
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-        toast("Passwords do not match");
+      // Validation
+      if (!form.agree) {
+        toast.error("Accept terms first");
+        setLoading(false);
         return;
       }
 
-    try {
-      setLoading(true);
-      if (role === "customer") {
-        await axios.post(
-          "http://localhost:8000/api/customer/signup",
-          {
-            name: form.name,
-            email: form.email,
-            password: form.password,
-            phone: form.phone,
-            address: {
-              addressLine1: form.addressLine1,
-              city: form.city,
-              state: form.state,
-              pinCode: form.pinCode,
-            },
-          },
-          { withCredentials: true },
-        );
-      } else {
-        // 🔥 Convert multiple days → availability array
-        const availability = form.selectedDays.map((day) => ({
-          day,
-          startTime: form.startTime,
-          endTime: form.endTime,
-        }));
-
-        await axios.post(
-          "http://localhost:8000/api/provider/signup",
-          {
-            name: form.name,
-            email: form.email,
-            password: form.password,
-            phone: form.phone,
-            serviceType: [form.businessType],
-            availability,
-          },
-          { withCredentials: true },
-        );
+      if (!form.password || !form.confirmPassword) {
+        toast.error("Enter password and confirm password");
+        return;
       }
 
-      toast.success("Signup Successful 🚀 Redirecting...");
+      if (form.password !== form.confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+
+      if (form.password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
+
+      // Build payload based on role
+      let payload;
+      if (role === "customer") {
+        payload = {
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          phone: form.phone,
+          address: {
+            addressLine1: form.addressLine1,
+            city: form.city,
+            state: form.state,
+            pinCode: form.pinCode,
+          },
+        };
+      } else {
+        payload = {
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          phone: form.phone,
+          serviceType: form.businessType,
+          experience: form.experience,
+          availability: form.selectedDays.map((day) => ({
+            day,
+            startTime: form.startTime,
+            endTime: form.endTime,
+          })),
+        };
+      }
+
+      const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const url = `${apiBaseUrl}/api/${role}/signup`;
+
+      const res = await axios.post(url, payload, { withCredentials: true });
+
+      toast.success("Signup successful 🚀 Redirecting...");
+      console.log("SUCCESS 👉", res.data);
 
       setTimeout(() => {
-        if (role === "customer") {
-          navigate("/customer");
-        } else {
-          navigate("/provider");
-        }
-      }, 3000);
-    } catch (err) {
-      toast.error("Signup failed");
-      console.error(err.response?.data?.message)
-    } finally {
+        navigate(role === "customer" ? "/customer" : "/provider");
+      }, 2000);
+      } catch (err) {
+        console.log("FULL ERROR 👉", err);
+        console.log("BACKEND ERROR 👉", err.response?.data);
+
+        toast.error(err.response?.data?.message || "Signup failed");
+      }
+     finally {
       setLoading(false);
     }
   };
 
- useEffect(() => {
-  if (role === "customer") {
-    setForm({
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      phone: "",
-      addressLine1: "",
-      city: "",
-      state: "",
-      pinCode: "",
-      agree: false,
-    });
-  } else {
-    setForm({
-      name: "",
-      email: "",
-      password: "",
-      businessType: "",
-      experience: "",
-      phone: "",
-      selectedDays: [],   // 🔥 IMPORTANT
-      startTime: "",
-      endTime: "",
-      agree: false,
-    });
-  }
+  useEffect(() => {
+    if (role === "customer") {
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        phone: "",
+        addressLine1: "",
+        city: "",
+        state: "",
+        pinCode: "",
+        agree: false,
+      });
+    } else {
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        businessType: "",
+        experience: "",
+        phone: "",
+        selectedDays: [],
+        startTime: "",
+        endTime: "",
+        agree: false,
+      });
+    }
 
-  setStep(1);
-}, [role]);
+    setStep(1);
+  }, [role]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
@@ -246,7 +285,7 @@ export default function Signup() {
   {step > 1 && (
     <button
       onClick={handleBack}
-      className="absolute left-0 w-10 h-10  rounded-full font-extrabold hover:bg-lime-400 transition"
+      className="absolute left-0 w-10 h-10 rounded-full font-extrabold bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center"
     >
       ←
     </button>
@@ -284,6 +323,7 @@ export default function Signup() {
                   <input
                     name="name"
                     placeholder="Full Name"
+                    value={form.name}
                     onChange={handleChange}
                     className="w-full p-3 border rounded-lg"
                   />
@@ -291,6 +331,7 @@ export default function Signup() {
                     name="email"
                     type="email"
                     placeholder="Email"
+                    value={form.email}
                     onChange={handleChange}
                     className="w-full p-3 border rounded-lg"
                   />
@@ -300,12 +341,14 @@ export default function Signup() {
                       <input
                         name="businessType"
                         placeholder="Service Type (plumber, electrician)"
+                        value={form.businessType}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
                       <input
                         name="experience"
                         placeholder="Experience (years)"
+                        value={form.experience}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
@@ -320,6 +363,7 @@ export default function Signup() {
                   <input
                     name="phone"
                     placeholder="Phone Number"
+                    value={form.phone}
                     onChange={handleChange}
                     className="w-full p-3 border rounded-lg"
                   />
@@ -329,24 +373,28 @@ export default function Signup() {
                       <input
                         name="addressLine1"
                         placeholder="Address"
+                        value={form.addressLine1}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
                       <input
                         name="city"
                         placeholder="City"
+                        value={form.city}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
                       <input
                         name="state"
                         placeholder="State"
+                        value={form.state}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
                       <input
                         name="pinCode"
                         placeholder="Pin Code"
+                        value={form.pinCode}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
@@ -384,12 +432,14 @@ export default function Signup() {
                       <input
                         type="time"
                         name="startTime"
+                        value={form.startTime}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
                       <input
                         type="time"
                         name="endTime"
+                        value={form.endTime}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
@@ -405,6 +455,7 @@ export default function Signup() {
                     name="password"
                     type="password"
                     placeholder="Password"
+                    value={form.password}
                     onChange={handleChange}
                     className="w-full p-3 border rounded-lg"
                   />
@@ -413,6 +464,7 @@ export default function Signup() {
                       name="confirmPassword"
                       type="password"
                       placeholder="Confirm Password"
+                      value={form.confirmPassword}
                       onChange={handleChange}
                       className="w-full p-3 border rounded-lg"
                     />
@@ -422,6 +474,7 @@ export default function Signup() {
                     <input
                       type="checkbox"
                       name="agree"
+                      checked={form.agree}
                       onChange={handleChange}
                     />
                     I agree to Terms & Conditions
@@ -436,7 +489,7 @@ export default function Signup() {
             {step < 3 ? (
               <button
                 onClick={handleNext}
-                className="w-full bg-lime-400 py-3 rounded-lg font-semibold hover:bg-lime-500 transition"
+                className="w-full bg-lime-400 text-black py-3 rounded-lg font-semibold hover:bg-lime-500 transition"
               >
                 Next →
               </button>
@@ -444,7 +497,7 @@ export default function Signup() {
               <button
                 disabled={loading}
                 onClick={handleSubmit}
-                className="w-full bg-lime-400 text-white py-3 rounded-lg font-semibold"
+                className="w-full bg-lime-400 text-black py-3 rounded-lg font-semibold disabled:opacity-50 hover:bg-lime-500 transition"
               >
                 {loading ? "Signing up..." : "Sign Up"}
               </button>

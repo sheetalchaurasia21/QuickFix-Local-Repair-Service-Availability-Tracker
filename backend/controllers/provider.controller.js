@@ -222,13 +222,12 @@ export const searchByService = async (req, res) => {
     const { service } = req.query;
 
     const providers = await Provider.find({
-      serviceType: { $in: [service] },
-    //   isAvailableNow: true 
-    }).select("-password");
+      serviceType: { $regex: service, $options: "i" },
+    });
 
     res.status(200).json(providers);
 
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Error searching providers by service" });
   }
 };
