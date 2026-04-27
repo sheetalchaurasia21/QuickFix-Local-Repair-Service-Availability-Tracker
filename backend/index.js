@@ -2,6 +2,8 @@ import express from 'express'
 import connectToDB from './utils/db.js';
 import cors from 'cors'
 import "dotenv/config"
+import dotenv from "dotenv";
+dotenv.config();
 import cookieParser from "cookie-parser";
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,8 +34,9 @@ app.use('/api/customer',customerRouter)
 app.use('/api/provider',providerRouter)
 app.use('/api/booking',bookingRouter)
 
-const PORT=process.env.PORT
-app.listen(PORT, ()=>{
+const PORT=process.env.PORT || 5000;
+
+app.listen(PORT, () =>{
     console.log(`Server started at http://localhost:${PORT}`)
     connectToDB()
 })

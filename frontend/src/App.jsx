@@ -8,6 +8,9 @@ import CustomerHome from "./pages/CustomerHome";
 import ProviderHome from "./pages/ProviderHome";
 import Services from "./pages/Services";
 import ProviderProfile from "./pages/ProviderProfile";
+import Bookings from "./pages/Bookings";
+import CustomerProfile from "./pages/CustomerProfile";
+import Wishlist from "./pages/Wishlist";
 
 function App() {
   return (
@@ -20,6 +23,11 @@ function App() {
         <Route path="/signup" element={<Signup />} />
 
         <Route path="/customer" element={<CustomerHome />} />
+        <Route path="/bookings" element={<Bookings />} />
+        <Route path="/profile" element={<CustomerProfile />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/help" element={<h1>Help Center</h1>} />
+
         <Route path="/provider" element={<ProviderHome />} />
 
         <Route path="/services" element={<Services />} />

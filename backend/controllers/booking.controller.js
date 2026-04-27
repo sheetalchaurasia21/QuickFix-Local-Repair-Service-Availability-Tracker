@@ -10,14 +10,14 @@ export const bookIssue = async (req, res) => {
       return res.status(400).json({ message: "Required fields missing" });
     }
 
-    const provider = await Provider.findById(providerId);
-    if (!provider) {
-      return res.status(404).json({ message: "Provider not found" });
-    }
+    // const provider = await Provider.findById(providerId);
+    // if (!provider) {
+    //   return res.status(404).json({ message: "Provider not found" });
+    // }
 
-    if (!provider.isAvailableNow) {
-      return res.status(400).json({ message: "Provider not available right now" });
-    }
+    // if (!provider.isAvailableNow) {
+    //   return res.status(400).json({ message: "Provider not available right now" });
+    // }
 
     const booking = await Booking.create({
       userId: customerId,

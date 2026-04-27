@@ -20,30 +20,40 @@ export default function Login() {
 
     try {
       // 🔥 Change API routes accordingly
-      const url =
-        role === "customer"
-          ? "http://localhost:5000/api/customer/login"
-          : "http://localhost:5000/api/provider/login";
+      const API = "http://localhost:8000";
 
+const url =
+  role === "customer"
+    ? `${API}/api/customer/login`
+    : `${API}/api/provider/login`;
       const res = await axios.post(url, formData);
 
       if (res.status === 200) {
-        const user = res.data;
+        const user = res.data.user;
+        const token = res.data.token;
+
+        // 🔥 Store token in localStorage
+        localStorage.setItem("token", token);
 
         // store user (optional)
         localStorage.setItem("user", JSON.stringify(user));
 
         // 🔥 Redirect based on role
         if (role === "customer") {
-          navigate("/customer/home");
+          navigate("/customer");
         } else {
-          navigate("/provider/dashboard");
+          navigate("/provider");
         }
       }
     } catch (error) {
-      console.log(error);
-      alert("Invalid credentials");
-    }
+  console.log(error);
+
+  if (!error.response) {
+    alert("Server not running 🚨");
+  } else {
+    alert(error.response.data.message || "Login failed");
+  }
+}
   };
 
   return (

@@ -161,7 +161,7 @@ export default function Signup() {
         };
       }
 
-      const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
       const url = `${apiBaseUrl}/api/${role}/signup`;
 
       const res = await axios.post(url, payload, { withCredentials: true });
