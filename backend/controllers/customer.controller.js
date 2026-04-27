@@ -10,8 +10,9 @@ async function signupCustomer(req, res) {
     if (!name || !email || !password || !phone || !address) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    const emailLower = email.toLowerCase();
 
-    const existingUser = await Customer.findOne({ email });
+    const existingUser = await Customer.findOne({ email: emailLower });
     if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
     }
@@ -20,7 +21,7 @@ async function signupCustomer(req, res) {
 
     const newUser = await Customer.create({
       name,
-      email,
+      email: emailLower,
       password: hashedPassword,
       phone,
       address,
@@ -32,6 +33,13 @@ async function signupCustomer(req, res) {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     const userResponse = newUser.toObject();
     delete userResponse.password;
@@ -114,7 +122,8 @@ try {
 
     // 🔴 If email is being updated → check duplicate
     if (email) {
-      const existingUser = await Customer.findOne({ email });
+      const emailLower = email.toLowerCase();
+      const existingUser = await Customer.findOne({ email: emailLower });
       if (existingUser && existingUser._id.toString() !== userId) {
         return res.status(400).json({ message: "Email already in use" });
       }
@@ -123,7 +132,7 @@ try {
     // 🧾 Build update object dynamically
     const updateData = {
       ...(name && { name }),
-      ...(email && { email }),
+      ...(email && { email: email.toLowerCase() }),
       ...(phone && { phone }),
       ...(profileImage && { profileImage }),
       ...(address && { address })

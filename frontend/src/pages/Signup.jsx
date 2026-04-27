@@ -11,6 +11,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
   const [form, setForm] = useState({
     name: "",
@@ -91,9 +92,10 @@ export default function Signup() {
 
     try {
       setLoading(true);
+      let res;
       if (role === "customer") {
-        await axios.post(
-          "http://localhost:8000/api/customer/signup",
+        res = await axios.post(
+          `${BACKEND_URL}/api/customer/signup`,
           {
             name: form.name,
             email: form.email,
@@ -115,8 +117,8 @@ export default function Signup() {
           endTime: form.endTime,
         }));
 
-        await axios.post(
-          "http://localhost:8000/api/provider/signup",
+        res= await axios.post(
+          `${BACKEND_URL}/api/provider/signup`,
           {
             name: form.name,
             email: form.email,
@@ -128,9 +130,10 @@ export default function Signup() {
           { withCredentials: true },
         );
       }
+      const user = res.data.user ;
+      login(user, role);
 
       toast.success("Signup Successful! Redirecting...");
-      login(user, role);
 
       setTimeout(() => {
         if (role === "customer") {
@@ -139,9 +142,9 @@ export default function Signup() {
           navigate("/provider");
         }
       }, 3000);
-    } catch (err) {
-      toast.error("Signup failed");
-      console.error(err.response?.data?.message)
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Signup failed");
+      console.error(error)
     } finally {
       setLoading(false);
     }

@@ -4,7 +4,10 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
 export default function Login() {
+
   const [role, setRole] = useState("customer");
   const [formData, setFormData] = useState({
     email: "",
@@ -12,6 +15,7 @@ export default function Login() {
   });
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,12 +23,12 @@ export default function Login() {
 
   const handleLogin = async (e) => {
   e.preventDefault();
-
+    
   try {
     const url =
       role === "customer"
-        ? "http://localhost:8000/api/customer/login"
-        : "http://localhost:8000/api/provider/login";
+        ? `${BACKEND_URL}/api/customer/login`
+        : `${BACKEND_URL}/api/provider/login`;
 
     const res = await axios.post(url, formData, {
       withCredentials: true,
@@ -33,10 +37,10 @@ export default function Login() {
     if (res.status === 200) {
       const user = res.data.user;
 
-      localStorage.setItem("user", JSON.stringify(user));
+      // localStorage.setItem("user", JSON.stringify(user));
 
       toast.success("Login Successful!");
-      login(user, "admin");
+      login(user, role);
 
       setTimeout(() => {
         if (role === "customer") {
@@ -48,8 +52,7 @@ export default function Login() {
     }
   } catch (error) {
     console.log(error.message);
-
-    toast.error("Invalid credentials");
+    toast.error(error.response?.data?.message || "Login failed");
   }
 };
 
