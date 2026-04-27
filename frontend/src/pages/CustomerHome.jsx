@@ -203,7 +203,7 @@ const handleLogout = async () => {
       {/* FEATURED PROVIDERS */}
       <div className="px-10 pb-16">
         <h2 className="text-3xl font-bold text-gray-800 mb-8">
-          Featured Providers
+          Top-Rated Providers
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
