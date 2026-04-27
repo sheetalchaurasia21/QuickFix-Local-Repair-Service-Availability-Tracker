@@ -7,6 +7,7 @@ import CustomerHome from "./pages/CustomerHome";
 import ProviderHome from "./pages/ProviderHome";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
+import Services from "./pages/Services";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/provider" element={<ProviderHome />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/services" element={<Services />} />
       </Routes>
     </>
   );

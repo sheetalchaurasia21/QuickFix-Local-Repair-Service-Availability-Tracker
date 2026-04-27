@@ -2,22 +2,77 @@ import React from "react";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
   
 export default function CustomerHome() {
+  const { logout } = useAuth();
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [services, setServices] = useState("");
   const [locations, setLocations] = useState("");
   const [providers, setProviders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearch = () => {
+  const servicesList = [
+  "Electrician",
+  "Plumber",
+  "AC Repair",
+  "Car Mechanic",
+  "Painter",
+  "Carpenter",
+  "Home Cleaning",
+  "Appliance Repair",
+];
+
+  const userCity = currentUser?.address?.city;
+
+  const handleSearch = async () => {
   if (!services || !locations) {
     alert("Please enter service & location");
     return;
   }
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}/api/provider/service`,
+      {
+        params: {
+          service: services,
+        },
+        withCredentials: true,
+      }
+    );
 
-  
-  navigate(`/services?service=${services}&city=${locations}`);
+    console.log("Providers:", res.data);
+
+    // store providers (optional if staying on same page)
+    setProviders(res.data);
+
+    // navigate to results page with data
+    navigate(`/services?service=${services}&city=${locations}`, {
+      state: { providers: res.data },
+    });
+
+  } catch (err) {
+    console.error(err.response?.data?.message);
+    alert("Failed to fetch providers");
+  }
+};
+
+const handleLogout = async () => {
+  try {
+    await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/customer/logout`,
+      {},
+      { withCredentials: true }
+    );
+
+    logout(); // clear local state
+    navigate("/login");
+
+  } catch (err) {
+    console.error(err);
+    alert("Logout failed");
+  }
 };
 
 
@@ -32,7 +87,7 @@ export default function CustomerHome() {
           <button className="text-gray-700 hover:text-green-600">Home</button>
           <button className="text-gray-700 hover:text-green-600">Services</button>
           <button className="text-gray-700 hover:text-green-600">Bookings</button>
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onClick={handleLogout}>
             Logout
           </button>
         </div>
@@ -114,30 +169,35 @@ export default function CustomerHome() {
         </h2>
 
         <div className="grid md:grid-cols-4 gap-6">
-          
-          {[
-            "Electrician",
-            "Plumber",
-            "AC Repair",
-            "Car Mechanic",
-          ].map((service, index) => (
-            <div
-              key={index}
-              className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
-            >
-              <h3 className="text-xl font-semibold text-gray-700">
-                {service}
-              </h3>
-              <p className="text-gray-500 mt-2 text-sm">
-                Book trusted {service.toLowerCase()} near you.
-              </p>
+  {servicesList.map((service, index) => (
+    <div
+      key={index}
+      className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
+    >
+      <h3 className="text-xl font-semibold text-gray-700">
+        {service}
+      </h3>
 
-              <button onClick={() => navigate(`/services?service=${service}&city=${locations}`)} className="mt-4 text-green-600 font-semibold">
-                Book Now →
-              </button>
-            </div>
-          ))}
-        </div>
+      <p className="text-gray-500 mt-2 text-sm">
+        Book trusted {service.toLowerCase()} near you.
+      </p>
+
+      <button
+        onClick={() => {
+          if (!userCity) {
+            alert("City not found");
+            return;
+          }
+
+          navigate(`/services?service=${service}&city=${userCity}`);
+        }}
+        className="mt-4 text-green-600 font-semibold"
+      >
+        Book Now →
+      </button>
+    </div>
+  ))}
+</div>
       </div>
 
       {/* FEATURED PROVIDERS */}

@@ -8,7 +8,8 @@ import {
   searchProviderByName,
   toggleAvailability,
   searchByService,
-  getCurrentUser
+  getCurrentUser,
+  searchProviders
 } from "../controllers/provider.controller.js";
 
 import auth from "../middlewares/auth.middleware.js";
@@ -24,5 +25,6 @@ providerRouter.get("/search", auth, searchProviderByName);      // ?name=abc
 providerRouter.get("/service", auth, searchByService);          // ?service=plumber
 providerRouter.get("/", auth, getAllProviders);
 providerRouter.patch("/toggle-availability", auth, toggleAvailability);
+providerRouter.get("/search-all", auth, searchProviders);
 
 export default providerRouter;

@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 export const signupProvider = async (req, res) => {
   try {
-    const { name, email, password, phone, serviceType, availability, profileImage } = req.body;
+    const { name, email, password, phone, serviceType, availability, profileImage, city,state } = req.body;
 
     if (!name || !email || !password || !phone || !serviceType) {
       return res.status(400).json({ message: "Required fields missing" });
@@ -26,7 +26,11 @@ export const signupProvider = async (req, res) => {
       phone,
       serviceType,
       availability,
-      profileImage: profileImage || ""
+      profileImage: profileImage || "",
+      address: {
+        city: city || "",
+        state: state || ""
+      }
     });
 
     const token = jwt.sign(
@@ -114,7 +118,7 @@ export const updateProviderProfile = async (req, res) => {
   try {
     const providerId = req.user.id;
 
-    const { name, email, phone, serviceType, availability, profileImage } = req.body;
+    const { name, email, phone, serviceType, availability, profileImage, city, state } = req.body;
 
     if (email) {
       const emailLower = email.toLowerCase();
@@ -130,7 +134,9 @@ export const updateProviderProfile = async (req, res) => {
       ...(phone && { phone }),
       ...(serviceType && { serviceType }),
       ...(availability && { availability }),
-      ...(profileImage && { profileImage })
+      ...(profileImage && { profileImage }),
+      ...(city && { "address.city": city }),
+      ...(state && { "address.state": state })
     };
 
     const updated = await Provider.findByIdAndUpdate(
@@ -232,5 +238,33 @@ export const searchByService = async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ message: "Error searching providers by service" });
+  }
+};
+
+
+export const searchProviders = async (req, res) => {
+  try {
+    const { service, city } = req.query;
+
+    let query = {};
+
+    // ✅ Service filter (case-insensitive)
+    if (service) {
+      query.serviceType = { $regex: service, $options: "i" };
+    }
+
+    // ✅ City filter (inside address or separate field)
+    if (city) {
+      query["address.city"] = { $regex: city, $options: "i" };
+      // OR if you store city directly:
+      // query.city = { $regex: city, $options: "i" };
+    }
+
+    const providers = await Provider.find(query).select("-password");
+
+    res.status(200).json(providers);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
