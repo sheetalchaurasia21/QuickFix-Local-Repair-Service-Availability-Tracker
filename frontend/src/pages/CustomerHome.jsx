@@ -7,6 +7,10 @@ import { toast } from "react-hot-toast";
 import { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import NotificationBell from "../components/NotificationBell";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { indiaCities } from "../data/indiaCities";
+
 
   
 export default function CustomerHome() {
@@ -56,7 +60,7 @@ export default function CustomerHome() {
     setProviders(res.data);
 
     // navigate to results page with data
-    navigate(`/services?service=${services}&city=${locations}`, {
+    navigate(`/search?service=${services}&city=${locations}`, {
       state: { providers: res.data },
     });
 
@@ -135,9 +139,9 @@ const handleLogout = async () => {
         <div className="relative">
           <div
             onClick={() => setNotifOpen(!notifOpen)}
-            className="cursor-pointer bg-green-600 text-white px-3 py-1 rounded-full"
+            className="cursor-pointer bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center"
           >
-            👤
+            <FontAwesomeIcon icon={faUser} />
           </div>
 
           {notifOpen && (
@@ -153,7 +157,7 @@ const handleLogout = async () => {
                 onClick={() => navigate("/bookings")}
                 className="p-2 hover:bg-gray-100 cursor-pointer"
               >
-                My Orders
+                My Bookings
               </p>
 
               <p
@@ -207,30 +211,20 @@ const handleLogout = async () => {
               onChange={(e) => setServices(e.target.value)}
               className="p-3 w-full rounded-lg border"
             />
-            <select
-              value={locations}
-              onChange={(e) => setLocations(e.target.value)}
-              className="p-3 w-full rounded-lg border"
-            >
-              <option value="">Select City</option>
-              <option>Bhubaneswar</option>
-              <option>Rourkela</option>
-              <option>Khordha</option>
-              <option>Cuttack</option>
-              <option>Ranchi</option>
-              <option>Jamshedpur</option>
-              <option>Gurgaon</option>
-              <option>Noida</option>
-              <option>Delhi</option>
-              <option>Mumbai</option>
-              <option>Bangalore</option>
-              <option>Hyderabad</option>
-              <option>Chennai</option>
-              <option>Kolkata</option>
-              <option>Lucknow</option>
-              <option>Kanpur</option>
-              <option>Agra</option>
-            </select>
+
+<select
+  value={locations}
+  onChange={(e) => setLocations(e.target.value)}
+  className="p-3 w-full rounded-lg border"
+>
+  <option value="">Select City</option>
+
+  {indiaCities.map((city) => (
+    <option key={city} value={city}>
+      {city}
+    </option>
+  ))}
+</select>
             <button onClick = {handleSearch}className="bg-green-600 text-white px-6 rounded-lg hover:bg-green-700">
               Search
             </button>
@@ -281,7 +275,7 @@ const handleLogout = async () => {
             return;
           }
 
-          navigate(`/services?service=${service}&city=${userCity}`);
+          navigate(`/search?service=${service}&city=${userCity}`);
         }}
         className="mt-4 text-green-600 font-semibold"
       >

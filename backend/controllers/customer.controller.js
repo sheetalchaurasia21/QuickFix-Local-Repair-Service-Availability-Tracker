@@ -3,6 +3,7 @@ import Customer from '../models/customer.model.js'
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Review from "../models/provider.model.js";
+import Booking from "../models/booking.model.js";
 
 async function signupCustomer(req, res) {
   try {
@@ -245,6 +246,23 @@ async function getCurrentUser(req, res) {
     res.status(500).json({ message: error.message });
   }
 }
+
+export const getMyCustomerBookings = async (req, res) => {
+  try {
+    const customerId = req.user.id;
+
+    const bookings = await Booking.find({ userId: customerId })
+      .populate("providerId", "name serviceType phone")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      count: bookings.length,
+      bookings,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 
 export {

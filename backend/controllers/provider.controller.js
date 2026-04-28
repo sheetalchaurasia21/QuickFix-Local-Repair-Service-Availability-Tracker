@@ -2,7 +2,7 @@ import Provider from "../models/provider.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Review from "../models/review.model.js";
-
+import Booking from "../models/booking.model.js";
 
 export const signupProvider = async (req, res) => {
   try {
@@ -186,6 +186,22 @@ export const searchProviderByName = async (req, res) => {
   }
 };
 
+export const getProviderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const provider = await Provider.findById(id);
+
+    if (!provider) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    res.status(200).json(provider);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 export const toggleAvailability = async (req, res) => {
   try {
@@ -243,6 +259,22 @@ export const searchByService = async (req, res) => {
   }
 };
 
+export const getMyProviderBookings = async (req, res) => {
+  try {
+    const providerId = req.user.id;
+
+    const bookings = await Booking.find({ providerId })
+      .populate("userId", "name email phone")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      count: bookings.length,
+      bookings,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 export const searchProviders = async (req, res) => {
   try {

@@ -8,7 +8,8 @@ import {
   getUserByID,
   getAllUsers,
   getCurrentUser,
-  deleteUser
+  deleteUser,
+  getMyCustomerBookings
 } from "../controllers/customer.controller.js";
 
 import auth from "../middlewares/auth.middleware.js";
@@ -23,6 +24,7 @@ customerRouter.put("/update-profile", auth, updateProfile);
 customerRouter.get("/search", auth, searchUserByName);
 customerRouter.get("/me", auth, getCurrentUser);  
 customerRouter.get("/", auth, getAllUsers);
+customerRouter.get("/bookings", auth, getMyCustomerBookings);
 customerRouter.get("/:id", auth, getUserByID);     
 customerRouter.delete("/:id", auth, deleteUser);
 customerRouter.get("/reviews", auth, getReviewsByCustomer);

@@ -1,16 +1,22 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+
+
 
 export default function Services() {
   const locationHook = useLocation();
   const navigate = useNavigate();
   const [providers, setProviders] = useState([]);
 const [loading, setLoading] = useState(true);
+const [selectedService, setSelectedService] = useState("All");
+const { currentUser } = useAuth();
+const cityFromUser = currentUser?.address?.city;
 
   const query = new URLSearchParams(locationHook.search);
   const service = query.get("service");
-  const city = query.get("city");
+  const city = query.get("city") || cityFromUser;
 
   useEffect(() => {
   const fetchProviders = async () => {
@@ -38,16 +44,68 @@ const [loading, setLoading] = useState(true);
   fetchProviders();
 }, [service, city]);
 
+useEffect(() => {
+  const fetchProviders = async () => {
+    try {
+      let res;
+
+      if (selectedService === "All") {
+        // 🔥 GET ALL PROVIDERS
+        res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/provider/`,
+          { withCredentials: true }
+        );
+      } else {
+        // 🔥 FILTERED BY SERVICE
+        res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/provider/service`,
+          {
+            params: {
+              service: selectedService,
+              city,
+            },
+            withCredentials: true,
+          }
+        );
+      }
+
+      setProviders(res.data);
+    } catch (err) {
+      console.log(err.response?.data?.message || err.message);
+    }
+  };
+
+  fetchProviders();
+}, [selectedService, city]);
+
 
   return (
     <div className="min-h-screen bg-gray-100 px-10 py-10">
 
-      <h1 className="text-3xl font-bold mb-4">Search Results</h1>
+      <h1 className="text-3xl font-bold mb-4">Get Services</h1>
 
       <p className="text-gray-600 mb-8">
         Showing <span className="font-semibold">{service}</span> in{" "}
         <span className="font-semibold">{city}</span>
       </p>
+
+      <div className="mb-6 flex gap-3 flex-wrap">
+
+  {["All", "Electrician", "Plumber", "AC Repair", "Carpenter"].map((item) => (
+    <button
+      key={item}
+      onClick={() => setSelectedService(item)}
+      className={`px-4 py-2 rounded-full border ${
+        selectedService === item
+          ? "bg-green-600 text-white"
+          : "bg-white"
+      }`}
+    >
+      {item}
+    </button>
+  ))}
+
+</div>
 
       {loading ? (
   <p>Loading...</p>
@@ -81,7 +139,9 @@ const [loading, setLoading] = useState(true);
 
         <button
           disabled={!p.isAvailableNow}
-          onClick={() => navigate(`/provider/${p._id}`)}
+          onClick={() =>
+            navigate(`/book/${p._id}?service=${service}`)
+          }
           className={`mt-4 px-4 py-2 rounded text-white ${
             p.isAvailableNow
               ? "bg-green-600 hover:bg-green-700"

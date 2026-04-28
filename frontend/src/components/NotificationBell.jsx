@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
@@ -10,7 +12,7 @@ export default function NotificationBell() {
         onClick={() => setOpen(!open)}
         className="cursor-pointer text-xl relative"
       >
-        🔔
+        <FontAwesomeIcon icon={faBell} />
       </div>
 
       {open && (

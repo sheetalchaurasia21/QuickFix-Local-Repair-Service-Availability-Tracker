@@ -9,7 +9,9 @@ import {
   toggleAvailability,
   searchByService,
   getCurrentUser,
-  searchProviders
+  searchProviders,
+  getProviderById,
+  getMyProviderBookings
 } from "../controllers/provider.controller.js";
 
 import auth from "../middlewares/auth.middleware.js";
@@ -31,5 +33,7 @@ providerRouter.get("/reviews", auth, async (req, res) => {
   req.params.providerId = req.user.id; // 👈 inject providerId
   return getReviewsForProvider(req, res);
 });
+providerRouter.get("/bookings", auth, getMyProviderBookings);
+providerRouter.get("/:id", getProviderById);
 
 export default providerRouter;

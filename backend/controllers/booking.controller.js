@@ -153,20 +153,52 @@ export const getBookingById = async (req, res) => {
   }
 };
 
-export const getMyBookings = async (req, res) => {
+// export const getMyBookings = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     const role = req.user.role;
+
+//     let filter = {};
+
+//     if (role === "provider") {
+//       filter = { providerId: userId };
+//     } else {
+//       filter = { userId };
+//     }
+
+//     const bookings = await Booking.find(filter)
+//       .populate("providerId", "name serviceType phone")
+//       .populate("userId", "name email")
+//       .sort({ createdAt: -1 });
+
+//     res.json({
+//       count: bookings.length,
+//       bookings,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
+export const acceptBooking = async (req, res) => {
   try {
-    const customerId = req.user.id;
+    const providerId = req.user.id;
+    const { bookingId } = req.params;
 
-    const bookings = await Booking.find({ userId: customerId })
-      .populate("providerId", "name serviceType phone profileImage")
-      .sort({ createdAt: -1 });
+    const booking = await Booking.findById(bookingId);
 
-    res.status(200).json({
-      count: bookings.length,
-      bookings
-    });
+    if (!booking) return res.status(404).json({ message: "Not found" });
 
+    if (booking.providerId.toString() !== providerId) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    booking.status = "accepted";
+    await booking.save();
+
+    res.json({ message: "Booking accepted", booking });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
