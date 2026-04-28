@@ -3,15 +3,23 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-hot-toast";
+import { useEffect } from "react";
+import Navbar from "../components/Navbar";
+import NotificationBell from "../components/NotificationBell";
+
   
 export default function CustomerHome() {
   const { logout } = useAuth();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
   const [services, setServices] = useState("");
   const [locations, setLocations] = useState("");
   const [providers, setProviders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifications = [];
 
   const servicesList = [
   "Electrician",
@@ -73,6 +81,23 @@ const handleLogout = async () => {
     console.error(err);
     alert("Logout failed");
   }
+
+  const handleBooking = async (serviceName) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    try {
+      await axios.post("http://localhost:8000/api/booking/create", {
+        userId: user._id,
+        service: serviceName,
+        city: locations
+      });
+      toast.success("Booking created successfully!");
+    } catch (error) {
+      toast.error("Booking failed.");
+    }
+  };
+
+  navigate(`/services?service=${services}&city=${locations}`);
 };
 
 
@@ -80,18 +105,85 @@ const handleLogout = async () => {
     <div className="min-h-screen bg-gray-100">
       
       {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-10 py-3 bg-white shadow">
-        <h1 className="text-2xl font-bold text-green-700">QuickFix</h1>
+      <nav className="flex justify-between items-center px-10 py-4 bg-white shadow">
+      <h1
+        onClick={() => navigate("/customer")}
+        className="text-2xl font-bold text-green-700 cursor-pointer"
+      >
+        QuickFix
+      </h1>
 
-        <div className="flex gap-6 items-center">
-          <button className="text-gray-700 hover:text-green-600">Home</button>
-          <button className="text-gray-700 hover:text-green-600">Services</button>
-          <button className="text-gray-700 hover:text-green-600">Bookings</button>
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700" onClick={handleLogout}>
-            Logout
-          </button>
+      <div className="flex gap-6 items-center">
+
+        {/* NAV LINKS */}
+        <button onClick={() => navigate("/customer")} className="hover:text-green-600">
+          Home
+        </button>
+
+        <button onClick={() => navigate("/services")} className="hover:text-green-600">
+          Services
+        </button>
+
+        <button onClick={() => navigate("/bookings")} className="hover:text-green-600">
+          Bookings
+        </button>
+
+        {/* 🔔 NOTIFICATION ICON */}
+        <NotificationBell />
+
+        {/* PROFILE */}
+        <div className="relative">
+          <div
+            onClick={() => setNotifOpen(!notifOpen)}
+            className="cursor-pointer bg-green-600 text-white px-3 py-1 rounded-full"
+          >
+            👤
+          </div>
+
+          {notifOpen && (
+            <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-40">
+              <p
+                onClick={() => navigate("/profile")}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
+              >
+                Profile
+              </p>
+
+              <p
+                onClick={() => navigate("/bookings")}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
+              >
+                My Orders
+              </p>
+
+              <p
+                onClick={() => navigate("/wishlist")}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
+              >
+                Wishlist
+              </p>
+
+              <p
+                onClick={() => navigate("/help")}
+                className="p-2 hover:bg-gray-100 cursor-pointer"
+              >
+                Help Center
+              </p>
+
+              <p
+                onClick={() => {
+                  localStorage.removeItem("user");
+                  navigate("/login");
+                }}
+                className="p-2 text-red-500 hover:bg-gray-100 cursor-pointer"
+              >
+                Logout
+              </p>
+            </div>
+          )}
         </div>
-      </nav>
+      </div>
+    </nav>
 
       {/* HERO SECTION */}
       <div className="grid md:grid-cols-2 gap-10 px-6 py-8 items-center">

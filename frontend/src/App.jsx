@@ -8,6 +8,10 @@ import ProviderHome from "./pages/ProviderHome";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import Services from "./pages/Services";
+import ProviderProfile from "./pages/ProviderProfile";
+import Bookings from "./pages/Bookings";
+import CustomerProfile from "./pages/CustomerProfile";
+import Wishlist from "./pages/Wishlist";
 
 function App() {
   return (
@@ -18,6 +22,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/customer" element={<CustomerHome />} />
+        <Route path="/bookings" element={<Bookings />} />
+        <Route path="/profile" element={<CustomerProfile />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/help" element={<h1>Help Center</h1>} />
+
         <Route path="/provider" element={<ProviderHome />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/login" element={<AdminLogin />} />
