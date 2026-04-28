@@ -69,7 +69,7 @@ export default function Services() {
 
               <button
                 disabled={!p.available}
-                onClick={() => navigate(`/provider/${p.id}`)}
+                onClick={() => navigate(`/provider/${p.id}`, { state: p })}
                 className={`mt-4 px-4 py-2 rounded text-white ${
                   p.available
                     ? "bg-green-600 hover:bg-green-700"
