@@ -109,6 +109,9 @@ function Landing() {
           <div className="p-6 bg-gray-100 rounded-xl shadow">
             Quick & Reliable Service
           </div>
+
+
+          
         </div>
       </div>
 

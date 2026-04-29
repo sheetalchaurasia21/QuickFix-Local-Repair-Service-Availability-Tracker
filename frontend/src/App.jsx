@@ -12,6 +12,10 @@ import ProviderProfile from "./pages/ProviderProfile";
 import Bookings from "./pages/Bookings";
 import CustomerProfile from "./pages/CustomerProfile";
 import Wishlist from "./pages/Wishlist";
+import ProviderBookings from "./pages/ProviderBookings";
+import ProviderSettings from "./pages/ProviderSettings";
+import ProviderLayout from "./layout/ProviderLayout";
+
 
 function App() {
   return (
@@ -27,9 +31,17 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/help" element={<h1>Help Center</h1>} />
 
-        <Route path="/provider" element={<ProviderHome />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/provider" element={<ProviderLayout />}>
+          <Route index element={<ProviderHome />} />
+          <Route path="profile" element={<ProviderProfile />} />
+          <Route path="bookings" element={<ProviderBookings />} />
+          <Route path="availability" element={<h1>Provider Availability</h1>} />
+          <Route path="reviews" element={<h1>Provider Reviews</h1>} />
+          <Route path="settings" element={<ProviderSettings />} />
+        </Route>
+
+        <Route path="/services" element={<Services />} />
+        <Route path="/provider/:id" element={<ProviderHome />} />
       </Routes>
     </>
   );
