@@ -32,11 +32,15 @@ const url =
         const user = res.data.user;
         const token = res.data.token;
 
+        // store user (optional)
+        localStorage.setItem("user", JSON.stringify(user));
+
         // 🔥 Store token in localStorage
         localStorage.setItem("token", token);
 
-        // store user (optional)
-        localStorage.setItem("user", JSON.stringify(user));
+        navigate(role == "customer" ? "/customer" : "/provider");
+
+        
 
         // 🔥 Redirect based on role
         if (role === "customer") {

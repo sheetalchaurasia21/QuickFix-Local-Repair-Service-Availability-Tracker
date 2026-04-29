@@ -85,7 +85,8 @@ export const loginProvider = async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
-      provider: userResponse
+      user: userResponse,
+      token
     });
 
   } catch (err) {
