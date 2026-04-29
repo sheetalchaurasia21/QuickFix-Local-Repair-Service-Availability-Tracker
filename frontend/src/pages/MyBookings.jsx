@@ -2,39 +2,42 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 export default function MyBookings() {
   const { currentUser, role } = useAuth();
+  const navigate = useNavigate();
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const fetchBookings = async () => {
-    try {
-      if (!currentUser || !role) return; // 🔥 IMPORTANT GUARD
+    const fetchBookings = async () => {
+      try {
+        if (!currentUser || !role) return;
 
-      const endpoint =
-        role === "provider"
-          ? "/api/provider/bookings"
-          : "/api/customer/bookings";
+        const endpoint =
+          role === "provider"
+            ? "/api/provider/bookings"
+            : "/api/customer/bookings";
 
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
-        { withCredentials: true }
-      );
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
+          { withCredentials: true }
+        );
 
-      setBookings(res.data.bookings || []);
-    } catch (err) {
-      console.log("BOOKING ERROR 👉", err.response?.data || err.message);
-      toast.error("Failed to load bookings");
-    } finally {
-      setLoading(false);
-    }
-  };
+        setBookings(res.data.bookings || []);
+      } catch (err) {
+        toast.error("Failed to load bookings");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchBookings();
-}, [currentUser, role]); // 🔥 FIXED DEPENDENCY
+    fetchBookings();
+  }, [currentUser, role]);
 
   if (!currentUser) {
     return (
@@ -45,8 +48,9 @@ export default function MyBookings() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-10">
-      <h1 className="text-3xl font-bold mb-6">
+    <div className="min-h-screen bg-gray-100 p-6 md:p-10">
+
+      <h1 className="text-3xl font-bold mb-10">
         {role === "provider" ? "Provider Bookings" : "My Bookings"}
       </h1>
 
@@ -55,37 +59,45 @@ export default function MyBookings() {
       ) : bookings.length === 0 ? (
         <p className="text-gray-500">No bookings found</p>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {bookings.map((b) => (
             <div
               key={b._id}
-              className="bg-white p-5 rounded shadow flex justify-between items-center"
+              className="bg-white rounded-2xl shadow hover:shadow-lg px-4 py-3 transition flex flex-col md:flex-row md:justify-between md:items-center"
             >
-              {/* LEFT SIDE */}
-              <div>
-                <h2 className="font-semibold text-lg">
-                  {b.serviceRequested}
-                </h2>
 
-                <p className="text-gray-600">
-                  📅 {b.date} ⏰ {b.time}
-                </p>
+              {/* LEFT */}
+              <div className="flex gap-2 items-center">
 
-                <p className="text-gray-600">
-                  Provider: {b.providerId?.name}
-                </p>
+                {/* Provider Image */}
+                <div className="w-18 h-18 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                  {b.providerId?.profileImage ? (
+                    <img
+                      src={`${import.meta.env.VITE_BACKEND_URL}${b.providerId.profileImage}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FontAwesomeIcon icon={faUser} className="text-gray-500" />
+                  )}
+                </div>
 
-                {role === "provider" && (
-                  <p className="text-gray-600">
-                    Customer: {b.userId?.name}
+                {/* Info */}
+                <div>
+                  <h3 className="font-semibold text-lg">
+                    {b.providerId?.name || "Provider"}
+                  </h3>
+
+                  <p className="text-sm text-gray-500">
+                    📅 {b.date} • ⏰ {b.time}
                   </p>
-                )}
-              </div>
 
-              {/* STATUS */}
-              <div className="text-right">
+                  <p className="text-sm text-gray-600 mt-1">
+                    {b.serviceRequested}
+                  </p>
+                </div>
+                {/* STATUS */}
                 <span
-                  className={`px-3 py-1 rounded text-sm font-semibold ${
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                     b.status === "completed"
                       ? "bg-green-100 text-green-700"
                       : b.status === "pending"
@@ -99,89 +111,56 @@ export default function MyBookings() {
                 >
                   {b.status}
                 </span>
+              </div>
 
-                {/* CUSTOMER ACTION */}
-                {role === "customer" &&
-  b.status !== "completed" &&
-  b.status !== "cancelled" && (
-    <button
-      onClick={async () => {
-        try {
-          await axios.patch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/booking/cancel/${b._id}`,
-            {},
-            { withCredentials: true }
-          );
+              {/* RIGHT */}
+              <div className="mt-4 md:mt-0 text-right space-y-2">
 
-          toast.success("Booking cancelled");
+                
 
-          setBookings((prev) =>
-            prev.map((item) =>
-              item._id === b._id
-                ? { ...item, status: "cancelled" }
-                : item
-            )
-          );
-        } catch (err) {
-          toast.error("Cancel failed");
-        }
-      }}
-      className="mt-2 text-sm text-red-600 underline"
-    >
-      Cancel
-    </button>
-)}
+                {/* ACTIONS */}
+                <div className="flex gap-3 justify-end">
 
-                {/* PROVIDER ACTION */}
-                {role === "provider" && b.status === "pending" && (
-                  <div className="mt-2 space-x-2">
-                    <button
-                      onClick={async () => {
-                        await axios.patch(
-                          `${import.meta.env.VITE_BACKEND_URL}/api/booking/accept/${b._id}`,
-                          {},
-                          { withCredentials: true }
-                        );
+                  {/* View Details */}
+                  <button
+                    onClick={() => navigate(`/booking/${b._id}`)}
+                    className="text-sm px-4 py-1.5 bg-gray-100 rounded-lg hover:bg-gray-200"
+                  >
+                    View Details
+                  </button>
 
-                        toast.success("Accepted");
+                  {/* Cancel */}
+                  {role === "customer" &&
+                    b.status !== "cancelled" &&
+                    b.status !== "completed" && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            await axios.patch(
+                              `${import.meta.env.VITE_BACKEND_URL}/api/booking/cancel/${b._id}`,
+                              {},
+                              { withCredentials: true }
+                            );
 
-                        setBookings((prev) =>
-                          prev.map((item) =>
-                            item._id === b._id
-                              ? { ...item, status: "accepted" }
-                              : item
-                          )
-                        );
-                      }}
-                      className="text-green-600 text-sm"
-                    >
-                      Accept
-                    </button>
+                            toast.success("Booking cancelled");
 
-                    <button
-                      onClick={async () => {
-                        await axios.patch(
-                          `${import.meta.env.VITE_BACKEND_URL}/api/booking/update/${b._id}`,
-                          { status: "rejected" },
-                          { withCredentials: true }
-                        );
-
-                        toast.success("Rejected");
-
-                        setBookings((prev) =>
-                          prev.map((item) =>
-                            item._id === b._id
-                              ? { ...item, status: "rejected" }
-                              : item
-                          )
-                        );
-                      }}
-                      className="text-red-600 text-sm"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                )}
+                            setBookings((prev) =>
+                              prev.map((item) =>
+                                item._id === b._id
+                                  ? { ...item, status: "cancelled" }
+                                  : item
+                              )
+                            );
+                          } catch {
+                            toast.error("Cancel failed");
+                          }
+                        }}
+                        className="text-sm px-4 py-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                </div>
               </div>
             </div>
           ))}

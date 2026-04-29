@@ -229,13 +229,7 @@ export default function CustomerHome() {
         </div>
       </div>
 
-      {/* FOOTER */}
-      <div className="bg-white px-10 py-6 border-t flex justify-between text-sm text-gray-600">
-        <span>✔ Trusted Platform</span>
-        <span>⭐ Quality Service</span>
-        <span>⏱ 24/7 Support</span>
-        <span>🔒 Secure & Safe</span>
-      </div>
+      
     </div>
   );
 }

@@ -73,9 +73,9 @@ const CustomerNavbar = () => {
                 My Bookings
               </p>
 
-              <p onClick={() => navigate("/wishlist")} className="p-2 hover:bg-gray-100 cursor-pointer">
+              {/* <p onClick={() => navigate("/wishlist")} className="p-2 hover:bg-gray-100 cursor-pointer">
                 Wishlist
-              </p>
+              </p> */}
 
               <p onClick={() => navigate("/help")} className="p-2 hover:bg-gray-100 cursor-pointer">
                 Help Center

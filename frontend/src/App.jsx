@@ -66,6 +66,8 @@ import Bookings from "./pages/Booking";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
+import Card from "./components/Card";
+import Help from "./pages/Help";
 
 function App() {
   return (
@@ -88,7 +90,7 @@ function App() {
           <Route path="/profile" element={<CustomerProfile />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/bookings" element={<MyBookings />} />
-          <Route path="/help" element={<h1>Help Center</h1>} />
+          <Route path="/help" element={<Help />} />
 
           {/* COMMON */}
           <Route path="/search" element={<Search />} />
@@ -98,6 +100,7 @@ function App() {
           <Route path="/provider" element={<ProviderHome />} />
           <Route path="/provider/:id" element={<ProviderProfile />} />
           <Route path="/book/:providerId" element={<Bookings />} />
+          <Route path="/booking/:id" element={<Card/>} /> {/* for viewing booking details later */ }
 
         </Route>
 

@@ -30,7 +30,7 @@ providerRouter.get("/", auth, getAllProviders);
 providerRouter.patch("/toggle-availability", auth, toggleAvailability);
 providerRouter.get("/search-all", auth, searchProviders);
 providerRouter.get("/reviews", auth, async (req, res) => {
-  req.params.providerId = req.user.id; // 👈 inject providerId
+  req.params.providerId = req.user.id; //  inject providerId
   return getReviewsForProvider(req, res);
 });
 providerRouter.get("/bookings", auth, getMyProviderBookings);

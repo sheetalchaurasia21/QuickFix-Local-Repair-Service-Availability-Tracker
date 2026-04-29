@@ -138,7 +138,7 @@ export default function CustomerProfile() {
       {/* FORM */}
       <div className="w-full max-w-5xl bg-white rounded-xl shadow-md p-10">
 
-        {/* <h1 className="text-3xl font-bold mb-10">My Profile</h1> */}
+        <h1 className="text-3xl font-bold py-2 text-center ">My Profile</h1>
 
         <div className="grid grid-cols-1 gap-6">
 
