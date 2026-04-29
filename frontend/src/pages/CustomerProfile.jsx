@@ -62,85 +62,103 @@ export default function CustomerProfile() {
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white shadow rounded">
-      <h1 className="text-2xl font-bold mb-4">My Profile</h1>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      
+      <div className="w-full max-w-2xl bg-white rounded-xl shadow-md p-6">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">
+            My Profile
+          </h1>
 
-      <input
-        disabled={!editing}
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-        className="w-full mb-3 p-2 border rounded"
-      />
+          
+        </div>
 
-      <input
-        disabled
-        value={form.email}
-        className="w-full mb-3 p-2 border rounded"
-      />
+        {/* Form Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-      <input
-        disabled={!editing}
-        value={form.phone}
-        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-        className="w-full mb-3 p-2 border rounded"
-      />
+          <input
+            disabled={!editing}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="w-full p-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3E635]"
+            placeholder="Full Name"
+          />
 
-      <input
-        disabled={!editing}
-        placeholder="Address Line"
-        value={form.addressLine1}
-        onChange={(e) =>
-          setForm({ ...form, addressLine1: e.target.value })
-        }
-        className="w-full mb-3 p-2 border rounded"
-      />
+          <input
+            disabled
+            value={form.email}
+            className="w-full p-2.5 border rounded-md bg-gray-100 text-gray-500"
+            placeholder="Email"
+          />
 
-      <input
-        disabled={!editing}
-        placeholder="City"
-        value={form.city}
-        onChange={(e) => setForm({ ...form, city: e.target.value })}
-        className="w-full mb-3 p-2 border rounded"
-      />
+          <input
+            disabled={!editing}
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            className="w-full p-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3E635]"
+            placeholder="Phone"
+          />
 
-      <input
-        disabled={!editing}
-        placeholder="State"
-        value={form.state}
-        onChange={(e) => setForm({ ...form, state: e.target.value })}
-        className="w-full mb-3 p-2 border rounded"
-      />
+          <input
+            disabled={!editing}
+            placeholder="Address Line"
+            value={form.addressLine1}
+            onChange={(e) =>
+              setForm({ ...form, addressLine1: e.target.value })
+            }
+            className="w-full p-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3E635]"
+          />
 
-      <input
-        disabled={!editing}
-        placeholder="Pin Code"
-        value={form.pinCode}
-        onChange={(e) => setForm({ ...form, pinCode: e.target.value })}
-        className="w-full mb-3 p-2 border rounded"
-      />
+          <input
+            disabled={!editing}
+            placeholder="City"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+            className="w-full p-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3E635]"
+          />
 
-      {!editing ? (
-        <button
-          onClick={() => setEditing(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-        >
-          Edit
-        </button>
-      ) : (
-        <button
-          onClick={handleUpdate}
-          className="bg-green-600 text-white px-4 py-2 rounded mr-2"
-        >
-          Save
-        </button>
-      )}
+          <input
+            disabled={!editing}
+            placeholder="State"
+            value={form.state}
+            onChange={(e) => setForm({ ...form, state: e.target.value })}
+            className="w-full p-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3E635]"
+          />
 
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded"
-      >
-        Logout
-      </button>
+          <input
+            disabled={!editing}
+            placeholder="Pin Code"
+            value={form.pinCode}
+            onChange={(e) => setForm({ ...form, pinCode: e.target.value })}
+            className="w-full p-2.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#A3E635]"
+          />
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-between items-center mt-6">
+          <div>
+            {!editing ? (
+              <button
+                onClick={() => setEditing(true)}
+                className="bg-[#A3E635] text-black px-5 py-2 rounded-md font-medium hover:bg-lime-400 transition"
+              >
+                Edit
+              </button>
+            ) : (
+              <button
+                onClick={handleUpdate}
+                className="bg-green-600 text-white px-5 py-2 rounded-md font-medium hover:bg-green-700 transition"
+              >
+                Save
+              </button>
+            )}
+          </div>
+
+          
+        </div>
+      </div>
     </div>
   );
 }
