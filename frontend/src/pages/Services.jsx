@@ -1,85 +1,164 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 export default function Services() {
   const locationHook = useLocation();
   const navigate = useNavigate();
 
+  const { currentUser } = useAuth();
+
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedService, setSelectedService] = useState("All");
+
   const query = new URLSearchParams(locationHook.search);
-  const service = query.get("service");
-  const city = query.get("city");
+  const serviceFromQuery = query.get("service");
 
-  // 🔥 INDIA LEVEL DATA
-  const providers = [
-    // Bhubaneswar
-    { id: 1, name: "Rahul Electrician", service: "Electrician", city: "Bhubaneswar", state: "Odisha", price: 299, available: true, rating: 4.5 },
-    { id: 2, name: "Amit Plumber", service: "Plumber", city: "Bhubaneswar", state: "Odisha", price: 199, available: false, rating: 4.2 },
+  const city = currentUser?.address?.city;
 
-    // Cuttack
-    { id: 3, name: "Ramesh Plumber", service: "Plumber", city: "Cuttack", state: "Odisha", price: 249, available: true, rating: 4.6 },
+  // 🔥 Fetch ALL providers once
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/provider/`,
+          { withCredentials: true }
+        );
 
-    // Delhi
-    { id: 4, name: "Delhi Electric Pro", service: "Electrician", city: "Delhi", state: "Delhi", price: 399, available: true, rating: 4.8 },
+        setProviders(res.data);
+      } catch (err) {
+        console.log(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Mumbai
-    { id: 5, name: "Mumbai AC Expert", service: "AC Repair", city: "Mumbai", state: "Maharashtra", price: 499, available: true, rating: 4.7 },
+    fetchProviders();
+  }, []);
 
-    // Bangalore
-    { id: 6, name: "Bangalore Mechanic", service: "Car Mechanic", city: "Bangalore", state: "Karnataka", price: 599, available: true, rating: 4.4 },
-  ];
+  // 🔥 Filter providers (city + service)
+  const filteredProviders = providers.filter((p) => {
+    const matchesCity = city
+      ? p.address?.city?.toLowerCase() === city.toLowerCase()
+      : true;
 
-  // ✅ FILTER LOGIC (STRICT)
-  const filtered = providers.filter((p) => {
-    return (
-      (!service || p.service.toLowerCase() === service.toLowerCase()) &&
-      (!city || p.city.toLowerCase() === city.toLowerCase())
-    );
+    const matchesService =
+      selectedService === "All" ||
+      p.serviceType?.includes(selectedService);
+
+    return matchesCity && matchesService;
   });
 
-  return (
-    <div className="min-h-screen bg-gray-100 px-10 py-10">
+  if (!currentUser) {
+    return <p className="p-10">⚠️ Please login</p>;
+  }
 
-      <h1 className="text-3xl font-bold mb-4">Search Results</h1>
+  return (
+    <div className="min-h-screen bg-gray-100 px-6 md:px-10 py-10">
+
+      {/* HEADER */}
+      <h1 className="text-3xl font-bold mb-4">Get Services</h1>
 
       <p className="text-gray-600 mb-8">
-        Showing <span className="font-semibold">{service}</span> in{" "}
-        <span className="font-semibold">{city}</span>
+        Showing{" "}
+        <span className="font-semibold">
+          {selectedService || serviceFromQuery || "All"}
+        </span>{" "}
+        in{" "}
+        <span className="font-semibold">
+          {city || "your city"}
+        </span>
       </p>
 
-      {filtered.length === 0 ? (
+      {/* FILTER BUTTONS */}
+      <div className="mb-6 flex gap-3 flex-wrap">
+        {["All", "Electrician", "Plumber", "AC Repair", "Carpenter"].map(
+          (item) => (
+            <button
+              key={item}
+              onClick={() => setSelectedService(item)}
+              className={`px-4 py-2 rounded-full border text-sm transition ${
+                selectedService === item
+                  ? "bg-green-600 text-white"
+                  : "bg-white hover:bg-gray-100"
+              }`}
+            >
+              {item}
+            </button>
+          )
+        )}
+      </div>
+
+      {/* CONTENT */}
+      {loading ? (
+        <p>Loading...</p>
+      ) : filteredProviders.length === 0 ? (
         <div className="text-center mt-20 text-gray-500">
-          ❌ No providers found in this city
+          ❌ No providers found in your city
         </div>
       ) : (
         <div className="grid md:grid-cols-3 gap-6">
-          {filtered.map((p) => (
-            <div key={p.id} className="bg-white p-6 rounded-xl shadow">
 
-              <h2 className="text-xl font-semibold">{p.name}</h2>
+          {filteredProviders.map((p) => (
+            <div
+              key={p._id}
+              className="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition border"
+            >
 
-              <p className="text-gray-500 mt-2">🔧 {p.service}</p>
-              <p className="text-gray-500">📍 {p.city}, {p.state}</p>
+              {/* TOP */}
+              <div className="flex justify-between items-start">
+                <h2 className="text-base font-semibold text-gray-800">
+                  {p.name}
+                </h2>
 
-              <p className="text-yellow-500 mt-2">⭐ {p.rating}</p>
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    p.isAvailableNow
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-500"
+                  }`}
+                >
+                  {p.isAvailableNow ? "Available" : "Offline"}
+                </span>
+              </div>
 
-              <p className="font-semibold mt-2">₹ {p.price}</p>
-
-              <p className={`mt-1 text-sm ${p.available ? "text-green-600" : "text-red-500"}`}>
-                {p.available ? "Available Now" : "Not Available"}
+              {/* SERVICE */}
+              <p className="text-sm text-gray-500 mt-2 truncate">
+                🔧 {p.serviceType?.join(", ")}
               </p>
 
+              {/* LOCATION */}
+              <p className="text-sm text-gray-500">
+                📍 {p.address?.city || "N/A"}
+              </p>
+
+              {/* RATING */}
+              <div className="flex items-center gap-1 mt-2">
+                <span className="text-yellow-500 text-sm">⭐</span>
+                <span className="text-sm text-gray-600">
+                  {p.rating || 0}
+                </span>
+              </div>
+
+              {/* BUTTON */}
               <button
-                disabled={!p.available}
-                onClick={() => navigate(`/provider/${p.id}`, { state: p })}
-                className={`mt-4 px-4 py-2 rounded text-white ${
-                  p.available
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-gray-400 cursor-not-allowed"
+                disabled={!p.isAvailableNow}
+                onClick={() =>
+                  navigate(`/book/${p._id}`)
+                }
+                className={`mt-4 w-full py-2 text-sm rounded-md font-medium transition ${
+                  p.isAvailableNow
+                    ? "bg-[#A3E635] text-black hover:bg-lime-400"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
-                {p.available ? "Book Now" : "Unavailable"}
+                {p.isAvailableNow ? "Book Now" : "Unavailable"}
               </button>
             </div>
           ))}
+
         </div>
       )}
     </div>

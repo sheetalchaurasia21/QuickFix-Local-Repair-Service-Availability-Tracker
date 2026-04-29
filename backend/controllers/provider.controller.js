@@ -1,10 +1,12 @@
 import Provider from "../models/provider.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import Review from "../models/review.model.js";
+import Booking from "../models/booking.model.js";
 
 export const signupProvider = async (req, res) => {
   try {
-    const { name, email, password, phone, serviceType, availability, profileImage } = req.body;
+    const { name, email, password, phone, serviceType, availability, profileImage, city,state } = req.body;
 
     if (!name || !email || !password || !phone || !serviceType) {
       return res.status(400).json({ message: "Required fields missing" });
@@ -26,7 +28,11 @@ export const signupProvider = async (req, res) => {
       phone,
       serviceType,
       availability,
-      profileImage: profileImage || ""
+      profileImage: profileImage || "",
+      address: {
+        city: city || "",
+        state: state || ""
+      }
     });
 
     const token = jwt.sign(
@@ -116,7 +122,7 @@ export const updateProviderProfile = async (req, res) => {
   try {
     const providerId = req.user.id;
 
-    const { name, email, phone, serviceType, availability, profileImage } = req.body;
+    const { name, email, phone, serviceType, availability, profileImage, city, state } = req.body;
 
     if (email) {
       const emailLower = email.toLowerCase();
@@ -132,7 +138,9 @@ export const updateProviderProfile = async (req, res) => {
       ...(phone && { phone }),
       ...(serviceType && { serviceType }),
       ...(availability && { availability }),
-      ...(profileImage && { profileImage })
+      ...(profileImage && { profileImage }),
+      ...(city && { "address.city": city }),
+      ...(state && { "address.state": state })
     };
 
     const updated = await Provider.findByIdAndUpdate(
@@ -180,6 +188,22 @@ export const searchProviderByName = async (req, res) => {
   }
 };
 
+export const getProviderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const provider = await Provider.findById(id);
+
+    if (!provider) {
+      return res.status(404).json({ message: "Provider not found" });
+    }
+
+    res.status(200).json(provider);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 export const toggleAvailability = async (req, res) => {
   try {
@@ -234,5 +258,49 @@ export const searchByService = async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ message: "Error searching providers by service" });
+  }
+};
+
+export const getMyProviderBookings = async (req, res) => {
+  try {
+    const providerId = req.user.id;
+
+    const bookings = await Booking.find({ providerId })
+      .populate("userId", "name email phone")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      count: bookings.length,
+      bookings,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const searchProviders = async (req, res) => {
+  try {
+    const { service, city } = req.query;
+
+    let query = {};
+
+    // ✅ Service filter (case-insensitive)
+    if (service) {
+      query.serviceType = { $regex: service, $options: "i" };
+    }
+
+    // ✅ City filter (inside address or separate field)
+    if (city) {
+      query["address.city"] = { $regex: city, $options: "i" };
+      // OR if you store city directly:
+      // query.city = { $regex: city, $options: "i" };
+    }
+
+    const providers = await Provider.find(query).select("-password");
+
+    res.status(200).json(providers);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

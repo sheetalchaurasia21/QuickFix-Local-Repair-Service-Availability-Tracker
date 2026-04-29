@@ -66,7 +66,18 @@ const providerSchema = new mongoose.Schema({
   jobsCompleted: {
     type: Number,
     default: 0
+  },
+
+  address: {
+  city: {
+    type: String,
+    required: true
+  },
+  state: {
+    type: String,
+    default: ""
   }
+},
 
 }, {
   timestamps: true

@@ -12,6 +12,8 @@ import customerRouter from './routes/customer.routes.js'
 import bookingRouter from './routes/booking.routes.js'
 import providerRouter from './routes/provider.routes.js';
 import adminRouter from './routes/admin.routes.js';
+import cron from "node-cron";
+import { updateToOngoingIfTimeMatches } from "./utils/bookingScheduler.js";
 
 
 const app=express();
@@ -36,9 +38,17 @@ app.use('/api/provider',providerRouter)
 app.use('/api/booking',bookingRouter)
 app.use("/api/admin", adminRouter);
 
+
+
+
 const PORT=process.env.PORT || 5000;
 
 app.listen(PORT, () =>{
     console.log(`Server started at http://localhost:${PORT}`)
     connectToDB()
 })
+
+cron.schedule("* * * * *", () => {
+  updateToOngoingIfTimeMatches();
+  console.log("⏱ Booking status checker running...");
+});

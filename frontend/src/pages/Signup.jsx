@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import { indiaCities } from "../data/indiaCities";
 
 export default function Signup() {
   const [role, setRole] = useState("customer");
@@ -26,7 +27,8 @@ export default function Signup() {
     pinCode: "",
 
     // provider
-    businessType: "",
+    serviceType: [],
+    otherService: "",
     experience: "",
     selectedDays: [],
     startTime: "",
@@ -34,7 +36,17 @@ export default function Signup() {
 
     agree: false,
   });
-
+  const serviceOptions = [
+  "Electrician",
+  "Plumber",
+  "AC Repair",
+  "Car Mechanic",
+  "Painter",
+  "Carpenter",
+  "Home Cleaning",
+  "Appliance Repair",
+  "Other",
+];
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({
@@ -57,10 +69,10 @@ export default function Signup() {
       return false;
     }
 
-    if (role === "provider" && !form.businessType) {
-      toast.error("Enter service type");
-      return false;
-    }
+    if (role === "provider" && form.serviceType?.length === 0) {
+  toast.error("Select at least one service");
+  return false;
+}
 
     if (role === "provider" && !form.experience) {
       toast.error("Enter your experience");
@@ -87,6 +99,18 @@ export default function Signup() {
           return;
         }
       } else {
+        if (role === "provider" && form.serviceType?.length === 0) {
+          toast.error("Select at least one service");
+          return false;
+        }
+
+        if (
+          form.serviceType.includes("Other") &&
+          !form.otherService
+        ) {
+          toast.error("Enter your custom service");
+          return ;
+}
         if (form.selectedDays.length === 0) {
           toast.error("Select at least one day");
           return;
@@ -134,7 +158,12 @@ export default function Signup() {
           startTime: form.startTime,
           endTime: form.endTime,
         }));
-
+        const finalServices = form.serviceType.includes("Other")
+  ? [
+      ...form.serviceType.filter((s) => s !== "Other"),
+      form.otherService,
+    ]
+  : form.serviceType;
         res= await axios.post(
           `${BACKEND_URL}/api/provider/signup`,
           {
@@ -142,8 +171,10 @@ export default function Signup() {
             email: form.email,
             password: form.password,
             phone: form.phone,
-            serviceType: [form.businessType],
+            serviceType: finalServices.map(s => s.toLowerCase()),
             availability,
+              city: form.city,
+              state: form.state,
           },
           { withCredentials: true },
         );
@@ -167,7 +198,7 @@ export default function Signup() {
       setLoading(false);
     }
   
-
+  };
   useEffect(() => {
     if (role === "customer") {
       setForm({
@@ -181,6 +212,13 @@ export default function Signup() {
         state: "",
         pinCode: "",
         agree: false,
+
+        serviceType: [],
+      otherService: "",
+      experience: "",
+      selectedDays: [],
+      startTime: "",
+      endTime: "",
       });
     } else {
       setForm({
@@ -188,7 +226,8 @@ export default function Signup() {
         email: "",
         password: "",
         confirmPassword: "",
-        businessType: "",
+        serviceType: [],
+        otherService: "",
         experience: "",
         phone: "",
         selectedDays: [],
@@ -323,13 +362,77 @@ export default function Signup() {
 
                   {role === "provider" && (
                     <>
-                      <input
-                        name="businessType"
-                        placeholder="Service Type (plumber, electrician)"
-                        value={form.businessType}
-                        onChange={handleChange}
-                        className="w-full p-3 border rounded-lg"
-                      />
+                      <div className="flex flex-col gap-2">
+  <label className="font-semibold">Select Services</label>
+
+  <div className="relative w-full">
+
+  {/* SELECT BOX */}
+  <div className="w-full p-3 border rounded-lg min-h-[48px] flex flex-wrap gap-2 cursor-pointer">
+    
+    {role === "provider" && form.serviceType.length === 0 ? (
+      <span className="text-gray-400">Select Services</span>
+    ) : (
+      form.serviceType.map((item) => (
+        <span
+          key={item}
+          className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+        >
+          {item}
+          <button
+            type="button"
+            onClick={() => {
+              setForm({
+                ...form,
+                serviceType: form.serviceType.filter((s) => s !== item),
+              });
+            }}
+            className="ml-1 text-red-500"
+          >
+            ×
+          </button>
+        </span>
+      ))
+    )}
+  </div>
+
+  {/* OPTIONS DROPDOWN */}
+  <div className="mt-2 border rounded-lg bg-white shadow p-2 grid grid-cols-2 gap-2">
+    {serviceOptions.map((service) => (
+      <label
+        key={service}
+        className={`p-2 rounded cursor-pointer border ${
+          form.serviceType.includes(service)
+            ? "bg-green-100 border-green-500"
+            : "hover:bg-gray-100"
+        }`}
+        onClick={() => {
+          const exists = form.serviceType.includes(service);
+
+          setForm({
+            ...form,
+            serviceType: exists
+              ? form.serviceType.filter((s) => s !== service)
+              : [...form.serviceType, service],
+          });
+        }}
+      >
+        {service}
+      </label>
+    ))}
+  </div>
+
+</div>
+</div>
+{role === "provider" && form.serviceType?.includes("Other") && (
+  <input
+    name="otherService"
+    placeholder="Enter your service"
+    value={form.otherService}
+    onChange={handleChange}
+    className="w-full p-3 border rounded-lg"
+  />
+)}
                       <input
                         name="experience"
                         placeholder="Experience (years)"
@@ -362,13 +465,20 @@ export default function Signup() {
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
-                      <input
+                      <select
                         name="city"
-                        placeholder="City"
                         value={form.city}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
-                      />
+                      >
+                        <option value="">Select City</option>
+
+                        {indiaCities.map((city) => (
+                          <option key={city} value={city}>
+                            {city}
+                          </option>
+                        ))}
+                      </select>
                       <input
                         name="state"
                         placeholder="State"
@@ -389,29 +499,71 @@ export default function Signup() {
                       <div className="flex flex-col gap-2">
   <label className="font-semibold">Available Days</label>
 
-  {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((day) => (
-    <label key={day} className="flex items-center gap-2">
-      <input
-        type="checkbox"
-        value={day}
-        checked={form.selectedDays?.includes(day) || false}
-        onChange={(e) => {
-          if (e.target.checked) {
-            setForm({
-              ...form,
-              selectedDays: [...(form.selectedDays || []), day],
-            });
-          } else {
-            setForm({
-              ...form,
-              selectedDays: form.selectedDays.filter((d) => d !== day),
-            });
-          }
-        }}
-      />
-      {day}
-    </label>
-  ))}
+  <div className="relative w-full">
+
+    {/* SELECT BOX */}
+    <div className="w-full p-3 border rounded-lg min-h-[48px] flex flex-wrap gap-2 cursor-pointer">
+      
+      {(form.selectedDays || []).length === 0 ? (
+        <span className="text-gray-400">Select Days</span>
+      ) : (
+        form.selectedDays.map((day) => (
+          <span
+            key={day}
+            className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+          >
+            {day}
+            <button
+              type="button"
+              onClick={() => {
+                setForm({
+                  ...form,
+                  selectedDays: form.selectedDays.filter((d) => d !== day),
+                });
+              }}
+              className="ml-1 text-red-500"
+            >
+              ×
+            </button>
+          </span>
+        ))
+      )}
+    </div>
+
+    {/* DROPDOWN OPTIONS */}
+    <div className="mt-2 border rounded-lg bg-white shadow p-2 grid grid-cols-2 gap-2">
+      {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map((day) => {
+        const isSelected = (form.selectedDays || []).includes(day);
+
+        return (
+          <div
+            key={day}
+            className={`p-2 rounded cursor-pointer border ${
+              isSelected
+                ? "bg-green-100 border-green-500"
+                : "hover:bg-gray-100"
+            }`}
+            onClick={() => {
+              if (isSelected) {
+                setForm({
+                  ...form,
+                  selectedDays: form.selectedDays.filter((d) => d !== day),
+                });
+              } else {
+                setForm({
+                  ...form,
+                  selectedDays: [...(form.selectedDays || []), day],
+                });
+              }
+            }}
+          >
+            {day}
+          </div>
+        );
+      })}
+    </div>
+
+  </div>
 </div>
 
                       <input
@@ -425,6 +577,27 @@ export default function Signup() {
                         type="time"
                         name="endTime"
                         value={form.endTime}
+                        onChange={handleChange}
+                        className="w-full p-3 border rounded-lg"
+                      />
+                      <select
+                        name="city"
+                        value={form.city}
+                        onChange={handleChange}
+                        className="w-full p-3 border rounded-lg"
+                      >
+                        <option value="">Select City</option>
+
+                        {indiaCities.map((city) => (
+                          <option key={city} value={city}>
+                            {city}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        name="state"
+                        placeholder="State"
+                        value={form.state}
                         onChange={handleChange}
                         className="w-full p-3 border rounded-lg"
                       />
@@ -522,4 +695,4 @@ export default function Signup() {
       </div>
     </div>
   );
-}}
+}

@@ -14,7 +14,7 @@ export default function AdminDashboard() {
   const fetchDashboard = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8000/api/admin/dashboard",
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/dashboard`,
         { withCredentials: true }
       );
 
