@@ -25,8 +25,15 @@ export default function ProviderSidebar() {
           Reviews
         </Link>
 
-        <Link to="/provider/settings" className={`block p-2 rounded ${active("/provider/settings")}`}>
-          Settings
+        <Link
+          to="/provider/requests"
+          className={`block p-2 rounded ${active("/provider/requests")}`}
+        >
+          Booking Requests
+        </Link>
+
+        <Link to="/provider/profile" className={`block p-2 rounded ${active("/provider/settings")}`}>
+          My Profile  
         </Link>
       </nav>
     </div>

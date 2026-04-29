@@ -59,19 +59,21 @@ import CustomerProfile from "./pages/CustomerProfile";
 import Wishlist from "./pages/Wishlist";
 import ProviderBookings from "./pages/ProviderBookings";
 import ProviderSettings from "./pages/ProviderSettings";
-import ProviderLayout from "./layout/ProviderLayout";
+// import ProviderLayout from "./layout/ProviderLayout";
 
 import MyBookings from "./pages/MyBookings";
 import Search from "./pages/Search";
 
 import Services from "./pages/Services";
 import ProviderProfile from "./pages/ProviderProfile";
-import Bookings from "./pages/Booking";
+import Booking from "./pages/Booking";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import Card from "./components/Card";
 import Help from "./pages/Help";
+import ProviderReviews from "./pages/ProviderReviews";
+import ProviderRequests from "./pages/ProviderRequests";
 
 function App() {
   return (
@@ -102,8 +104,15 @@ function App() {
 
           {/* PROVIDER */}
           <Route path="/provider" element={<ProviderHome />} />
-          <Route path="/provider/:id" element={<ProviderProfile />} />
-          <Route path="/book/:providerId" element={<Bookings />} />
+          <Route path="/provider/profile" element={<ProviderProfile />} />
+          <Route path="/provider/bookings" element={<MyBookings />} />
+
+
+<Route path="/provider/reviews" element={<ProviderReviews />} />
+<Route path="/provider/requests" element={<ProviderRequests />} />
+
+
+          <Route path="/book/:providerId" element={<Booking />} />
           <Route path="/booking/:id" element={<Card/>} /> {/* for viewing booking details later */ }
           
   

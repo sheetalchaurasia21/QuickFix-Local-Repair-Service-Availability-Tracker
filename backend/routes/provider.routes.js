@@ -16,13 +16,14 @@ import {
 
 import auth from "../middlewares/auth.middleware.js";
 import { getReviewsForProvider } from "../controllers/review.controller.js";
+import upload from "../middlewares/fileupload.middleware.js";
 
 const providerRouter = express.Router();
 
 providerRouter.post("/signup", signupProvider);
 providerRouter.post("/login", loginProvider);
 providerRouter.post("/logout", auth, logoutProvider);
-providerRouter.put("/update-profile", auth, updateProviderProfile);
+providerRouter.put("/update-profile", auth,upload.single("profileImage"), updateProviderProfile);
 providerRouter.get("/me", auth, getCurrentUser);
 providerRouter.get("/search", auth, searchProviderByName);      // ?name=abc
 providerRouter.get("/service", auth, searchByService);          // ?service=plumber

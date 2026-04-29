@@ -48,10 +48,11 @@ export default function MyBookings() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 md:p-10">
+    role === "customer" ?(
+      <div className="min-h-screen bg-gray-100 p-6 md:p-10">
 
       <h1 className="text-3xl font-bold mb-10">
-        {role === "provider" ? "Provider Bookings" : "My Bookings"}
+        {role === "provider" ? "My Bookings" : "My Bookings"}
       </h1>
 
       {loading ? (
@@ -167,5 +168,72 @@ export default function MyBookings() {
         </div>
       )}
     </div>
+    ):(
+      <div className="min-h-screen bg-gray-100 p-6 md:p-10">
+
+  <h1 className="text-3xl font-bold mb-10">
+    My Bookings
+  </h1>
+
+  {loading ? (
+    <p>Loading...</p>
+  ) : bookings.length === 0 ? (
+    <p className="text-gray-500">No bookings found</p>
+  ) : (
+    <div className="grid gap-4">
+
+      {bookings.filter((b) => b.status !== "cancelled").map((b) => (
+        <div
+          key={b._id}
+          className="bg-white rounded-2xl shadow hover:shadow-lg px-5 py-4 transition flex flex-col md:flex-row md:justify-between md:items-center"
+        >
+
+          {/* LEFT SIDE */}
+          <div className="space-y-1">
+
+            {/* CUSTOMER NAME */}
+            <h3 className="font-semibold text-lg text-gray-800">
+              {b.userId?.name || "Customer"}
+            </h3>
+
+            {/* DETAILS */}
+            <p className="text-sm text-gray-500">
+              📅 {b.date} • ⏰ {b.time}
+            </p>
+
+            <p className="text-sm text-gray-700 font-medium">
+              {b.serviceRequested}
+            </p>
+
+          </div>
+
+          {/* RIGHT SIDE - STATUS */}
+          <div className="mt-3 md:mt-0">
+
+            <span
+              className={`inline-block px-4 py-1.5 rounded-full text-xs font-semibold ${
+                b.status === "completed"
+                  ? "bg-green-100 text-green-700"
+                  : b.status === "pending"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : b.status === "ongoing"
+                  ? "bg-blue-100 text-blue-700"
+                  : b.status === "cancelled"
+                  ? "bg-red-100 text-red-700"
+                  : "bg-gray-100 text-gray-700"
+              }`}
+            >
+              {b.status}
+            </span>
+
+          </div>
+
+        </div>
+      ))}
+
+    </div>
+  )}
+</div>
+    )
   );
 }

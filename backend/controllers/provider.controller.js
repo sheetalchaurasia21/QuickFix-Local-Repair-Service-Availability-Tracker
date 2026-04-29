@@ -4,9 +4,75 @@ import jwt from "jsonwebtoken";
 import Review from "../models/review.model.js";
 import Booking from "../models/booking.model.js";
 
+// export const signupProvider = async (req, res) => {
+//   try {
+//     const { name, email, password, phone, serviceType, availability, profileImage, city,state } = req.body;
+
+//     if (!name || !email || !password || !phone || !serviceType) {
+//       return res.status(400).json({ message: "Required fields missing" });
+//     }
+
+//     const emailLower = email.toLowerCase();
+
+//     const existing = await Provider.findOne({ email: emailLower });
+//     if (existing) {
+//       return res.status(400).json({ message: "Email already registered" });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     const newProvider = await Provider.create({
+//       name,
+//       email: emailLower,
+//       password: hashedPassword,
+//       phone,
+//       serviceType,
+//       availability,
+//       profileImage: profileImage || "",
+//       address: {
+//         city: city || "",
+//         state: state || ""
+//       }
+//     });
+
+//     const token = jwt.sign(
+//       { id: newProvider._id },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "7d" }
+//     );
+
+//     res.cookie("token", token, {
+//       httpOnly: true,
+//       secure: false,
+//       sameSite: "Strict",
+//       maxAge: 7 * 24 * 60 * 60 * 1000
+//     });
+
+//     const userResponse = newProvider.toObject();
+//     delete userResponse.password;
+
+//     res.status(201).json({
+//       message: "Provider registered",
+//       user: userResponse
+//     });
+
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// };
+
 export const signupProvider = async (req, res) => {
   try {
-    const { name, email, password, phone, serviceType, availability, profileImage, city,state } = req.body;
+    const {
+      name,
+      email,
+      password,
+      phone,
+      serviceType,
+      availability,
+      city,
+      state
+    } = req.body;
 
     if (!name || !email || !password || !phone || !serviceType) {
       return res.status(400).json({ message: "Required fields missing" });
@@ -21,14 +87,28 @@ export const signupProvider = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 🔥 FIX: ensure availability is parsed correctly
+    let parsedAvailability = [];
+
+    if (availability) {
+      try {
+        parsedAvailability =
+          typeof availability === "string"
+            ? JSON.parse(availability)
+            : availability;
+      } catch (err) {
+        parsedAvailability = [];
+      }
+    }
+
     const newProvider = await Provider.create({
       name,
       email: emailLower,
       password: hashedPassword,
       phone,
       serviceType,
-      availability,
-      profileImage: profileImage || "",
+      availability: parsedAvailability, // 🔥 FIXED
+      profileImage: "",
       address: {
         city: city || "",
         state: state || ""
@@ -122,44 +202,111 @@ export const updateProviderProfile = async (req, res) => {
   try {
     const providerId = req.user.id;
 
-    const { name, email, phone, serviceType, availability, profileImage, city, state } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      serviceType,
+      isAvailableNow,
+      availability,
+      city,
+      state
+    } = req.body;
 
+    // ----------------------------
+    // EMAIL CHECK
+    // ----------------------------
     if (email) {
       const emailLower = email.toLowerCase();
+
       const existing = await Provider.findOne({ email: emailLower });
+
       if (existing && existing._id.toString() !== providerId) {
         return res.status(400).json({ message: "Email already in use" });
       }
     }
 
+    // ----------------------------
+    // PARSE serviceType safely
+    // ----------------------------
+    let parsedServiceType = serviceType;
+
+    if (serviceType && typeof serviceType === "string") {
+      try {
+        parsedServiceType = JSON.parse(serviceType);
+      } catch {
+        parsedServiceType = serviceType.split(",").map((s) => s.trim());
+      }
+    }
+
+    // ----------------------------
+    // PARSE availability (IMPORTANT)
+    // ----------------------------
+    let parsedAvailability = [];
+
+    if (availability) {
+      try {
+        parsedAvailability =
+          typeof availability === "string"
+            ? JSON.parse(availability)
+            : availability;
+      } catch (err) {
+        parsedAvailability = [];
+      }
+    }
+
+    // ----------------------------
+    // BUILD UPDATE OBJECT
+    // ----------------------------
     const updateData = {
       ...(name && { name }),
       ...(email && { email: email.toLowerCase() }),
       ...(phone && { phone }),
-      ...(serviceType && { serviceType }),
-      ...(availability && { availability }),
-      ...(profileImage && { profileImage }),
+
+      ...(parsedServiceType && { serviceType: parsedServiceType }),
+
+      ...(typeof isAvailableNow !== "undefined" && {
+        isAvailableNow:
+          isAvailableNow === "true" || isAvailableNow === true,
+      }),
+
+      // 🔥 IMPORTANT: single source of truth
+      ...(parsedAvailability.length > 0 && {
+        availability: parsedAvailability,
+      }),
+
       ...(city && { "address.city": city }),
-      ...(state && { "address.state": state })
+      ...(state && { "address.state": state }),
+
+      ...(req.file && {
+        profileImage: `/uploads/${req.file.filename}`,
+      }),
     };
 
+    // ----------------------------
+    // UPDATE DB
+    // ----------------------------
     const updated = await Provider.findByIdAndUpdate(
       providerId,
       updateData,
-      { new: true, runValidators: true }
+      {
+        new: true,
+        runValidators: true,
+      }
     ).select("-password");
 
     if (!updated) {
       return res.status(404).json({ message: "Provider not found" });
     }
 
-    res.status(200).json({
-      message: "Profile updated",
-      user: updated
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user: updated,
     });
-
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({
+      message: err.message,
+    });
   }
 };
 

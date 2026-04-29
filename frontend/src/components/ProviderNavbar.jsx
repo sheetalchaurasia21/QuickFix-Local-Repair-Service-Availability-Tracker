@@ -1,54 +1,82 @@
 import { Bell } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-export default function ProviderNavbar({ provider }) {
+export default function ProviderNavbar() {
+  const { currentUser, logout } = useAuth();
 
-  const logout = () => {
-    localStorage.clear();
-    window.location.href = "/login";
-  };
+  const [showProfile, setShowProfile] = useState(false);
+  const [showNotif, setShowNotif] = useState(false);
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
-  };
+  const navigate = useNavigate();
+
+  const name = currentUser?.name || "Provider";
 
   return (
-    <div className="bg-white shadow px-6 py-4 flex justify-between items-center">
+    <header className="flex justify-between items-center bg-green-700 text-white px-6 py-4 rounded-md mb-6">
+      
+      {/* GREETING */}
+      <h2 className="text-lg font-semibold">
+        Good afternoon, {name}
+      </h2>
 
-      <div>
-        <h1 className="text-2xl font-bold">
-          {getGreeting()}, {provider?.name || "User"} 👋
-        </h1>
-        <p className="text-gray-500 text-sm">
-          Here's what's happening today
-        </p>
-      </div>
+      <div className="flex items-center gap-6 relative">
+        
+        {/* Notifications */}
+        <div className="relative">
+          <Bell
+            className="cursor-pointer"
+            onClick={() => setShowNotif(!showNotif)}
+          />
 
-      <div className="flex items-center gap-6">
-        <Bell />
-
-        <div className="flex items-center gap-3">
-          <div className="bg-gray-200 w-10 h-10 flex items-center justify-center rounded-full">
-            {provider?.name ? provider.name[0] : "U"}
-          </div>
-
-          <div>
-            <p className="font-semibold">{provider?.name}</p>
-            <p className="text-sm text-gray-500">
-              {provider?.serviceType?.[0] || "Service"}
-            </p>
-          </div>
+          {showNotif && (
+            <div className="absolute right-0 mt-3 w-64 bg-white text-black rounded-lg shadow-lg p-4 z-50">
+              <h4 className="font-semibold mb-2">Notifications</h4>
+              <p className="text-sm text-gray-500">
+                No new notifications
+              </p>
+            </div>
+          )}
         </div>
 
-        <button
-          onClick={logout}
-          className="bg-red-500 text-white px-4 py-2 rounded"
-        >
-          Logout
-        </button>
+        {/* Profile */}
+        <div className="relative">
+          <div
+            onClick={() => setShowProfile(!showProfile)}
+            className="cursor-pointer"
+          >
+            {/* Avatar */}
+            <div className="bg-white text-green-700 rounded-full w-9 h-9 flex items-center justify-center font-semibold">
+              {name?.[0]?.toUpperCase()}
+            </div>
+          </div>
+
+          {showProfile && (
+            <div className="absolute right-0 mt-3 w-44 bg-white text-black rounded-lg shadow-lg p-3 z-50">
+              
+              <button
+                onClick={() => navigate("/provider/profile")}
+                className="block w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
+              >
+                Profile
+              </button>
+
+              <button
+                onClick={() => {
+                    localStorage.removeItem("user");
+                    navigate("/login");
+                  }}
+                className="block w-full text-left px-3 py-2 text-red-500 hover:bg-gray-100 rounded"
+              >
+                Logout
+              </button>
+
+            </div>
+          )}
+        </div>
+
       </div>
-    </div>
+    </header>
   );
 }
