@@ -14,13 +14,14 @@ import {
 
 import auth from "../middlewares/auth.middleware.js";
 import { getReviewsByCustomer } from "../controllers/review.controller.js";
+import upload from "../middlewares/fileupload.middleware.js";
 
 const customerRouter = express.Router();
 
 customerRouter.post("/signup", signupCustomer);
 customerRouter.post("/login", loginCustomer);
 customerRouter.post("/logout", auth, logoutCustomer);
-customerRouter.put("/update-profile", auth, updateProfile);
+customerRouter.put("/update-profile", auth,upload.single("profileImage"), updateProfile);
 customerRouter.get("/search", auth, searchUserByName);
 customerRouter.get("/me", auth, getCurrentUser);  
 customerRouter.get("/", auth, getAllUsers);

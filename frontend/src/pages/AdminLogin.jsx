@@ -23,8 +23,8 @@ export default function AdminLogin() {
 
     try {
       const url = isLogin
-        ? "http://localhost:8000/api/admin/login"
-        : "http://localhost:8000/api/admin/signup";
+        ? `${import.meta.env.VITE_BACKEND_URL}/api/admin/login`
+        : `${import.meta.env.VITE_BACKEND_URL}/api/admin/signup`;
 
       const res = await axios.post(url, form, {
         withCredentials: true

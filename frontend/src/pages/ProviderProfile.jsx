@@ -33,7 +33,7 @@ export default function ProviderProfile() {
       };
 
       const res = await axios.post(
-        "http://localhost:8000/api/booking/book",
+        `${import.meta.env.VITE_BACKEND_URL}/api/booking/book`,
         bookingData,
         {
           headers: {

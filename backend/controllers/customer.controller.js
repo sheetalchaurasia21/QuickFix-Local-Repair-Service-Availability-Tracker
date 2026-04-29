@@ -117,46 +117,100 @@ try {
   }
 }
 
-async function updateProfile(req,res){
-try {
-    const userId = req.user.id; // from auth middleware
+// async function updateProfile(req,res){
+// try {
+//     const userId = req.user.id; // from auth middleware
 
-    const { name, email, phone, address, profileImage } = req.body;
+//     const { name, email, phone, address, profileImage } = req.body;
 
-    // 🔴 If email is being updated → check duplicate
+//     // 🔴 If email is being updated → check duplicate
+//     if (email) {
+//       const emailLower = email.toLowerCase();
+//       const existingUser = await Customer.findOne({ email: emailLower });
+//       if (existingUser && existingUser._id.toString() !== userId) {
+//         return res.status(400).json({ message: "Email already in use" });
+//       }
+//     }
+
+//     // 🧾 Build update object dynamically
+//     const updateData = {
+//       ...(name && { name }),
+//       ...(email && { email: email.toLowerCase() }),
+//       ...(phone && { phone }),
+//       ...(profileImage && { profileImage }),
+//       ...(address && { address })
+//     };
+
+//     const updatedUser = await Customer.findByIdAndUpdate(
+//       userId,
+//       updateData,
+//       {
+//         new: true,
+//         runValidators: true
+//       }
+//     ).select("-password");
+
+//     if (!updatedUser) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     res.status(200).json({
+//       message: "Profile updated successfully",
+//       user: updatedUser
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// }
+
+async function updateProfile(req, res) {
+  try {
+    const userId = req.user.id;
+
+    const { name, email, phone } = req.body;
+
+    // ✅ build address from flat fields
+    const address = {
+      addressLine1: req.body.addressLine1,
+      city: req.body.city,
+      state: req.body.state,
+      pinCode: req.body.pinCode,
+    };
+
+    // 📸 image
+    let profileImage;
+    if (req.file) {
+      profileImage = `/uploads/${req.file.filename}`;
+    }
+
+    // email check
     if (email) {
       const emailLower = email.toLowerCase();
       const existingUser = await Customer.findOne({ email: emailLower });
+
       if (existingUser && existingUser._id.toString() !== userId) {
         return res.status(400).json({ message: "Email already in use" });
       }
     }
 
-    // 🧾 Build update object dynamically
     const updateData = {
       ...(name && { name }),
       ...(email && { email: email.toLowerCase() }),
       ...(phone && { phone }),
       ...(profileImage && { profileImage }),
-      ...(address && { address })
+      ...(address && { address }), // ✅ now valid object
     };
-
+    // console.log(res.data.user);
     const updatedUser = await Customer.findByIdAndUpdate(
       userId,
       updateData,
-      {
-        new: true,
-        runValidators: true
-      }
+      { new: true, runValidators: true }
     ).select("-password");
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
 
     res.status(200).json({
       message: "Profile updated successfully",
-      user: updatedUser
+      user: updatedUser,
     });
 
   } catch (error) {

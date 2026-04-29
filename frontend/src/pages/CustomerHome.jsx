@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-hot-toast";
 import { useEffect } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/CustomerNavbar";
 import NotificationBell from "../components/NotificationBell";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
@@ -86,7 +86,7 @@ export default function CustomerHome() {
       const user = JSON.parse(localStorage.getItem("user"));
 
       try {
-        await axios.post("http://localhost:8000/api/booking/create", {
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/booking/create`, {
           userId: user._id,
           service: serviceName,
           city: locations,
@@ -102,94 +102,6 @@ export default function CustomerHome() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-10 py-4 bg-white shadow">
-        <h1
-          onClick={() => navigate("/customer")}
-          className="text-2xl font-bold text-green-700 cursor-pointer"
-        >
-          QuickFix
-        </h1>
-
-        <div className="flex gap-6 items-center">
-          {/* NAV LINKS */}
-          <button
-            onClick={() => navigate("/customer")}
-            className="hover:text-green-600"
-          >
-            Home
-          </button>
-
-          <button
-            onClick={() => navigate("/services")}
-            className="hover:text-green-600"
-          >
-            Services
-          </button>
-
-          <button
-            onClick={() => navigate("/bookings")}
-            className="hover:text-green-600"
-          >
-            Bookings
-          </button>
-
-          {/* 🔔 NOTIFICATION ICON */}
-          <NotificationBell />
-
-          {/* PROFILE */}
-          <div className="relative">
-            <div
-              onClick={() => setNotifOpen(!notifOpen)}
-              className="cursor-pointer bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center"
-            >
-              <FontAwesomeIcon icon={faUser} />
-            </div>
-
-            {notifOpen && (
-              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-40">
-                <p
-                  onClick={() => navigate("/profile")}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  Profile
-                </p>
-
-                <p
-                  onClick={() => navigate("/bookings")}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  My Bookings
-                </p>
-
-                <p
-                  onClick={() => navigate("/wishlist")}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  Wishlist
-                </p>
-
-                <p
-                  onClick={() => navigate("/help")}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  Help Center
-                </p>
-
-                <p
-                  onClick={() => {
-                    localStorage.removeItem("user");
-                    navigate("/login");
-                  }}
-                  className="p-2 text-red-500 hover:bg-gray-100 cursor-pointer"
-                >
-                  Logout
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
 
       {/* HERO SECTION */}
       <div className="grid md:grid-cols-2 gap-10 px-6 py-8 items-center ">
@@ -237,9 +149,9 @@ export default function CustomerHome() {
 
           {/* TRUST TAGS */}
           <div className="flex gap-6 mt-6 text-sm text-gray-500">
-            <span>✔ Verified Professionals</span>
-            <span>✔ Instant Booking</span>
-            <span>✔ 24/7 Support</span>
+            <span>Verified Professionals</span>
+            <span>Instant Booking</span>
+            <span>24/7 Support</span>
           </div>
         </div>
 
