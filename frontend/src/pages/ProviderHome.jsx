@@ -172,7 +172,7 @@ export default function ProviderHome() {
   ) : (
     <ul className="divide-y">
       {bookings
-        .filter((b) => b.date === today)
+        .filter((b) => b.date === today && b.status !== "cancelled")
         .map((b) => (
           <li
             key={b._id}

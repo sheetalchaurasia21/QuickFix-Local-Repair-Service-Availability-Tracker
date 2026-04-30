@@ -184,7 +184,7 @@ export default function MyBookings() {
   ) : (
     <div className="grid gap-4">
       {bookings
-        .filter((b) => b.status !== "cancelled" && b.status !== "rejected")
+        .filter((b) => b.status !== "cancelled")
         .map((b) => (
           <div
             key={b._id}
