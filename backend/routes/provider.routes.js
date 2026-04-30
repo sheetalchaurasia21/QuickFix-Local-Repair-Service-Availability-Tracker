@@ -11,7 +11,8 @@ import {
   getCurrentUser,
   searchProviders,
   getProviderById,
-  getMyProviderBookings
+  getMyProviderBookings,
+  getProviderRequests
 } from "../controllers/provider.controller.js";
 
 import auth from "../middlewares/auth.middleware.js";
@@ -36,5 +37,6 @@ providerRouter.get("/reviews", auth, async (req, res) => {
 });
 providerRouter.get("/bookings", auth, getMyProviderBookings);
 providerRouter.get("/:id", getProviderById);
+providerRouter.get("/requests", auth, getProviderRequests);
 
 export default providerRouter;

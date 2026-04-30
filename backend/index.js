@@ -50,5 +50,5 @@ app.listen(PORT, () =>{
 
 cron.schedule("* * * * *", () => {
   updateToOngoingIfTimeMatches();
-  console.log("⏱ Booking status checker running...");
+//   console.log("⏱ Booking status checker running...");
 });

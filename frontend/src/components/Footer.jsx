@@ -1,14 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Footer = () => {
   const navigate=useNavigate();
+  const {role} = useAuth();
   return (
     <footer className="bg-green-800 text-gray-300 mt-10">
-      <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-6xl mx-auto px-6 py-10 flex flex-row justify-between gap-8">
 
         {/* Brand Section */}
-        <div>
+        <div className="w-[50%]">
           <h2 className="text-2xl font-bold text-white">QuickFix</h2>
           <p className="mt-3 text-sm text-gray-400">
             Your trusted platform for fast, reliable home services.
@@ -17,12 +19,23 @@ const Footer = () => {
         </div>
 
         {/* Quick Links */}
-        <div>
+        {/* <div>
           <h3 className="text-lg font-semibold text-white mb-3">Quick Links</h3>
           <ul className="space-y-2 text-sm">
-            <li className="hover:text-white cursor-pointer" onClick={() => navigate("/")}>
-              Home
-            </li>
+            <li
+  className="hover:text-white cursor-pointer"
+  onClick={() =>
+    navigate(
+      role === "customer"
+        ? "/customer"
+        : role === "provider"
+        ? "/provider"
+        : "/"
+    )
+  }
+>
+  Home
+</li>
             <li className="hover:text-white cursor-pointer" onClick={() => navigate("/services")}>
               Services
             </li>
@@ -33,7 +46,7 @@ const Footer = () => {
               Help Center
             </li>
           </ul>
-        </div>
+        </div> */}
 
         {/* Contact */}
         <div>

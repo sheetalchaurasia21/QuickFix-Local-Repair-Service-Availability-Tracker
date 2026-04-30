@@ -1,7 +1,8 @@
 import { Bell } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
 export default function ProviderNavbar() {
   const { currentUser, logout } = useAuth();
@@ -9,9 +10,67 @@ export default function ProviderNavbar() {
   const [showProfile, setShowProfile] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
 
+  const profileRef = useRef();
+  const notifRef = useRef();
+
+  useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (profileRef.current && !profileRef.current.contains(event.target)) {
+      setShowProfile(false);
+    }
+    if (notifRef.current && !notifRef.current.contains(event.target)) {
+      setShowNotif(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
   const navigate = useNavigate();
 
   const name = currentUser?.name || "Provider";
+
+
+  const [isAvailable, setIsAvailable] = useState(false);
+const [loading, setLoading] = useState(false);
+
+// fetch current status (optional but recommended)
+useEffect(() => {
+  const fetchStatus = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/provider/me`, {
+        withCredentials: true,
+      });
+      setIsAvailable(res.data.isAvailableNow);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  fetchStatus();
+}, []);
+
+const toggleAvailability = async () => {
+  try {
+    setLoading(true);
+
+    const res = await axios.patch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/provider/toggle-availability`,
+      {},
+      { withCredentials: true }
+    );
+
+    setIsAvailable(res.data.isAvailableNow);
+  } catch (err) {
+    console.log(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <header className="flex justify-between items-center bg-green-700 text-white px-6 py-4 rounded-md mb-6">
@@ -22,9 +81,23 @@ export default function ProviderNavbar() {
       </h2>
 
       <div className="flex items-center gap-6 relative">
+        <button
+  onClick={toggleAvailability}
+  disabled={loading}
+  className={`mr-4 px-3 py-1 rounded text-sm font-medium transition ${
+    isAvailable ? "bg-green-600 text-white" : "bg-gray-400 text-white"
+  }`}
+>
+  {loading
+    ? "..."
+    : isAvailable
+    ? "Available"
+    : "Not Available"}
+</button>
         
         {/* Notifications */}
-        <div className="relative">
+        <div className="relative" ref={notifRef}>
+          
           <Bell
             className="cursor-pointer"
             onClick={() => setShowNotif(!showNotif)}
@@ -41,7 +114,7 @@ export default function ProviderNavbar() {
         </div>
 
         {/* Profile */}
-        <div className="relative">
+        <div className="relative" ref={profileRef}>
           <div
             onClick={() => setShowProfile(!showProfile)}
             className="cursor-pointer"

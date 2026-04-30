@@ -37,15 +37,24 @@ export const bookIssue = async (req, res) => {
 
 export const updateBookingStatus = async (req, res) => {
   try {
+
     const providerId = req.user.id;
     const { bookingId } = req.params;
     const { status } = req.body;
+    // console.log("STATUS RECEIVED:", status);
 
-    const allowedStatus = ["rejected", "ongoing", "completed"];
+    const allowedStatus = [
+  "accepted",
+  "rejected",
+  "ongoing",
+  "completed",
+  "cancelled"
+];
 
+    
     if (!allowedStatus.includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
-    }
+  return res.status(400).json({ message: "Invalid status" });
+}
 
     const booking = await Booking.findById(bookingId);
     if (!booking) {
@@ -56,7 +65,7 @@ export const updateBookingStatus = async (req, res) => {
       return res.status(403).json({ message: "Not authorized" });
     }
 
-    if (["cancelled", "completed"].includes(booking.status)) {
+    if (["cancelled"].includes(booking.status)) {
       return res.status(400).json({ message: "Cannot update this booking" });
     }
 

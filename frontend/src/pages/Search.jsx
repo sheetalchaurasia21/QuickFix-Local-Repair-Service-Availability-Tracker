@@ -104,7 +104,7 @@ export default function Search() {
             : "bg-red-100 text-red-500"
         }`}
       >
-        {p.isAvailableNow ? "Available" : "Offline"}
+        {p.isAvailableNow ? "Available" : "Not Available"}
       </span>
     </div>
 

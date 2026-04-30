@@ -92,7 +92,7 @@
 // }
 
 
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -103,6 +103,7 @@ export default function Card() {
   const { id } = useParams();
   const [booking, setBooking] = useState(null);
   const { currentUser, role } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -113,13 +114,24 @@ export default function Card() {
       setBooking(res.data);
     };
 
+
     fetchBooking();
   }, [id]);
 
   if (!booking) return <p className="p-10">Loading...</p>;
 
   return (
-    <div className="h-full bg-gray-100 p-6 md:p-10 flex justify-center">
+    <div className="h-full bg-gray-100 p-6 md:p-10 flex flex-col items-center">
+       <div className="w-full max-w-3xl mb-3 flex justify-start">
+      <button
+        onClick={() =>
+          navigate(role === "provider" ? "/provider/bookings" : "/bookings")
+        }
+        className="text-sm text-gray-600 hover:text-gray-900"
+      >
+        ← Back to Bookings
+      </button>
+    </div>
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-6 flex flex-col md:flex-row gap-8">
 
         {/* LEFT - IMAGE */}
@@ -174,7 +186,7 @@ export default function Card() {
 
               <p><strong>Service:</strong> {booking.serviceRequested}</p>
 
-              <p><strong>Price:</strong> ₹{booking.price}</p>
+              <p><strong>Price:</strong> ₹{booking.price || 550}</p>
 
               <p className="sm:col-span-2">
                 <strong>Booked On:</strong>{" "}
@@ -221,6 +233,7 @@ export default function Card() {
         </div>
 
       </div>
+
     </div>
   );
 }

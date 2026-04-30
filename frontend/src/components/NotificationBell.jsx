@@ -1,13 +1,27 @@
-import { useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const notifications = [];
+  const bellRef = useRef(null);
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (bellRef.current && !bellRef.current.contains(event.target)) {
+      setOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={bellRef}>
       <div
         onClick={() => setOpen(!open)}
         className="cursor-pointer text-xl relative"

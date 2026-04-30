@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
@@ -9,11 +9,26 @@ const CustomerNavbar = () => {
   const navigate = useNavigate();
    const { logout,currentUser } = useAuth(); 
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   // const handleLogout = () => {
   //   logout();             
   //   navigate("/login");    
   // };
+
+  useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (menuRef.current && !menuRef.current.contains(event.target)) {
+      setMenuOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   return (
     <nav className="flex justify-between items-center px-10 py-3 bg-white shadow-md sticky top-0 z-50">
@@ -45,7 +60,7 @@ const CustomerNavbar = () => {
         <NotificationBell />
 
         {/* Profile */}
-        <div className="relative">
+        <div className="relative" ref={menuRef}>
 
           <div
             onClick={() => setMenuOpen(!menuOpen)}
@@ -55,7 +70,7 @@ const CustomerNavbar = () => {
     <img
       src={`${import.meta.env.VITE_BACKEND_URL}${currentUser.profileImage}`}
       alt="profile"
-      className="w-full h-full object-cover"
+      className="w-full h-full rounded-full object-cover"
     />
   ) : (
     <FontAwesomeIcon icon={faUser} className="text-white" />

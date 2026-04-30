@@ -203,31 +203,69 @@ export default function CustomerHome() {
 
       {/* FEATURED PROVIDERS */}
       <div className="px-10 pb-16">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8">
-          Top-Rated Providers
-        </h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition"
-            >
-              <h3 className="text-lg font-semibold">Provider {item}</h3>
-              <p className="text-gray-500 text-sm mt-2">
-                ⭐ 4.{item} • 120+ jobs completed
-              </p>
+  <h2 className="text-3xl font-bold text-gray-800 mb-8">
+    Top-Rated Providers
+  </h2>
 
-              <button
-                onClick={() => navigate(`/provider/${item}`)}
-                className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-              >
-                View Profile
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
+  <div className="grid md:grid-cols-3 gap-6">
+
+    {/* CARD 1 */}
+    <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+      <h3 className="text-lg font-semibold">Ramesh Plumbing Works</h3>
+      <p className="text-gray-500 text-sm mt-2">
+        ⭐ 4.8 • 240+ jobs completed
+      </p>
+      <p className="text-gray-400 text-sm mt-1">
+        Plumber • Bhubaneswar
+      </p>
+
+      <button
+        onClick={() => navigate(`/provider/101`)}
+        className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+      >
+        View Profile
+      </button>
+    </div>
+
+    {/* CARD 2 */}
+    <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+      <h3 className="text-lg font-semibold">Sharma Electricals</h3>
+      <p className="text-gray-500 text-sm mt-2">
+        ⭐ 4.6 • 180+ jobs completed
+      </p>
+      <p className="text-gray-400 text-sm mt-1">
+        Electrician • Cuttack
+      </p>
+
+      <button
+        onClick={() => navigate(`/provider/102`)}
+        className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+      >
+        View Profile
+      </button>
+    </div>
+
+    {/* CARD 3 */}
+    <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+      <h3 className="text-lg font-semibold">CleanPro Services</h3>
+      <p className="text-gray-500 text-sm mt-2">
+        ⭐ 4.9 • 310+ jobs completed
+      </p>
+      <p className="text-gray-400 text-sm mt-1">
+        Cleaning • Bhubaneswar
+      </p>
+
+      <button
+        onClick={() => navigate(`/provider/103`)}
+        className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+      >
+        View Profile
+      </button>
+    </div>
+
+  </div>
+</div>
 
       
     </div>

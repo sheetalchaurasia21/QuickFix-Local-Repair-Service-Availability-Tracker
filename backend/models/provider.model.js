@@ -50,7 +50,7 @@ const providerSchema = new mongoose.Schema({
 
   isAvailableNow: {
     type: Boolean,
-    default: false // 🔥 MAIN USP (real-time toggle)
+    default: true 
   },
 
   profileImage: {

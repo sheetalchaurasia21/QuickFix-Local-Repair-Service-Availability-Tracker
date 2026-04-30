@@ -12,6 +12,7 @@ export default function MyBookings() {
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -100,14 +101,18 @@ export default function MyBookings() {
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                     b.status === "completed"
-                      ? "bg-green-100 text-green-700"
-                      : b.status === "pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : b.status === "ongoing"
-                      ? "bg-blue-100 text-blue-700"
-                      : b.status === "cancelled"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-gray-100 text-gray-700"
+  ? "bg-green-100 text-green-700"
+  : b.status === "pending"
+  ? "bg-orange-100 text-orange-700"
+  : b.status === "accepted"
+  ? "bg-yellow-100 text-yellow-700"
+  : b.status === "ongoing"
+  ? "bg-blue-100 text-blue-700"
+  : b.status === "cancelled"
+  ? "bg-red-100 text-red-700"
+  : b.status === "rejected"
+  ? "bg-gray-200 text-gray-700"
+  : "bg-gray-100 text-gray-700"
                   }`}
                 >
                   {b.status}
@@ -170,10 +175,7 @@ export default function MyBookings() {
     </div>
     ):(
       <div className="min-h-screen bg-gray-100 p-6 md:p-10">
-
-  <h1 className="text-3xl font-bold mb-10">
-    My Bookings
-  </h1>
+  <h1 className="text-3xl font-bold mb-10">My Bookings</h1>
 
   {loading ? (
     <p>Loading...</p>
@@ -181,56 +183,97 @@ export default function MyBookings() {
     <p className="text-gray-500">No bookings found</p>
   ) : (
     <div className="grid gap-4">
+      {bookings
+        .filter((b) => b.status !== "cancelled" && b.status !== "rejected")
+        .map((b) => (
+          <div
+            key={b._id}
+            className="bg-white rounded-2xl shadow hover:shadow-lg px-5 py-4 transition flex flex-col md:flex-row md:justify-between md:items-center"
+          >
+            {/* LEFT SIDE */}
+            <div className="space-y-1">
+              <h3 className="font-semibold text-lg text-gray-800">
+                {b.userId?.name || "Customer"}
+              </h3>
 
-      {bookings.filter((b) => b.status !== "cancelled").map((b) => (
-        <div
-          key={b._id}
-          className="bg-white rounded-2xl shadow hover:shadow-lg px-5 py-4 transition flex flex-col md:flex-row md:justify-between md:items-center"
-        >
+              <p className="text-sm text-gray-500">
+                📅 {b.date} • ⏰ {b.time}
+              </p>
 
-          {/* LEFT SIDE */}
-          <div className="space-y-1">
+              <p className="text-sm text-gray-700 font-medium">
+                {b.serviceRequested}
+              </p>
+            </div>
 
-            {/* CUSTOMER NAME */}
-            <h3 className="font-semibold text-lg text-gray-800">
-              {b.userId?.name || "Customer"}
-            </h3>
+            <div className="mt-3 md:mt-0 relative">
 
-            {/* DETAILS */}
-            <p className="text-sm text-gray-500">
-              📅 {b.date} • ⏰ {b.time}
-            </p>
+  {/* STATUS BUTTON */}
+  <button
+    onClick={() =>
+      setOpenDropdown(openDropdown === b._id ? null : b._id)
+    }
+    className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
+      b.status === "completed"
+  ? "bg-green-100 text-green-700"
+  : b.status === "pending"
+  ? "bg-orange-100 text-orange-700"
+  : b.status === "accepted"
+  ? "bg-yellow-100 text-yellow-700"
+  : b.status === "ongoing"
+  ? "bg-blue-100 text-blue-700"
+  : b.status === "cancelled"
+  ? "bg-red-100 text-red-700"
+  : b.status === "rejected"
+  ? "bg-gray-200 text-gray-700"
+  : "bg-gray-100 text-gray-700"
+    }`}
+  >
+    {b.status} ▾
+  </button>
 
-            <p className="text-sm text-gray-700 font-medium">
-              {b.serviceRequested}
-            </p>
+  {/* DROPDOWN */}
+  {openDropdown === b._id && (
+    <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-10 overflow-hidden">
 
+      {["accepted", "ongoing", "completed", "rejected"]
+        .filter((s) => s !== b.status)
+        .map((status) => (
+          <button
+            key={status}
+            onClick={async () => {
+              try {
+                await axios.patch(
+                  `${import.meta.env.VITE_BACKEND_URL}/api/booking/update/${b._id}`,
+                  { status },
+                  { withCredentials: true }
+                );
+
+                toast.success(`Marked as ${status}`);
+
+                setBookings((prev) =>
+                  prev.map((item) =>
+                    item._id === b._id
+                      ? { ...item, status }
+                      : item
+                  )
+                );
+
+                setOpenDropdown(null); // close after select
+              } catch {
+                toast.error("Status update failed");
+              }
+            }}
+            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+          >
+            {status}
+          </button>
+        ))}
+    </div>
+  )}
+
+</div>
           </div>
-
-          {/* RIGHT SIDE - STATUS */}
-          <div className="mt-3 md:mt-0">
-
-            <span
-              className={`inline-block px-4 py-1.5 rounded-full text-xs font-semibold ${
-                b.status === "completed"
-                  ? "bg-green-100 text-green-700"
-                  : b.status === "pending"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : b.status === "ongoing"
-                  ? "bg-blue-100 text-blue-700"
-                  : b.status === "cancelled"
-                  ? "bg-red-100 text-red-700"
-                  : "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {b.status}
-            </span>
-
-          </div>
-
-        </div>
-      ))}
-
+        ))}
     </div>
   )}
 </div>
