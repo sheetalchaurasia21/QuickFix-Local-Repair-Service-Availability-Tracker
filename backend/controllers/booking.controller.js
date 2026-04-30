@@ -167,3 +167,16 @@ export const getMyBookings = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+// GET provider bookings
+export const getProviderBookings = async (req, res) => {
+  try {
+    const providerId = req.user.id;
+
+    const bookings = await Booking.find({ providerId })
+      .populate("customerId", "name");
+
+    res.json({ bookings });
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};

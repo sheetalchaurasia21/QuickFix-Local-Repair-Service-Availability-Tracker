@@ -14,6 +14,7 @@ import Wishlist from "./pages/Wishlist";
 import ProviderBookings from "./pages/ProviderBookings";
 import ProviderSettings from "./pages/ProviderSettings";
 import ProviderLayout from "./layout/ProviderLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <Route index element={<ProviderHome />} />
           <Route path="profile" element={<ProviderProfile />} />
           <Route path="bookings" element={<ProviderBookings />} />
+          <Route path="provider-bookings" element={<ProviderBookings />} />
           <Route path="availability" element={<h1>Provider Availability</h1>} />
           <Route path="reviews" element={<h1>Provider Reviews</h1>} />
           <Route path="settings" element={<ProviderSettings />} />
@@ -43,6 +45,17 @@ function App() {
 
         <Route path="/services" element={<Services />} />
         <Route path="/provider/:id" element={<ProviderHome />} />
+
+        <Route path="/provider" element={
+          <ProtectedRoute>
+            <ProviderLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<ProviderHome />} />
+          <Route path="profile" element={<ProviderProfile />} />
+          <Route path="bookings" element={<ProviderBookings />} />
+          <Route path="settings" element={<ProviderSettings />} />
+        </Route>
       </Routes>
     </>
   );

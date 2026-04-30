@@ -7,6 +7,23 @@ export default function ProviderTopbar({ name, role }) {
   const [showProfile, setShowProfile] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
   const navigate = useNavigate();
+  const [notifications] = useState([
+    "New booking received",
+    "Customer left a review"
+  ]);
+
+  {showNotif && (
+  <div className="absolute right-0 mt-3 w-64 bg-white text-black rounded shadow p-4">
+    <h4 className="font-semibold mb-2">Notifications</h4>
+    {notifications.length === 0 ? (
+      <p>No notifications</p>
+    ) : (
+      notifications.map((n, i) => (
+        <p key={i} className="text-sm border-b py-1">{n}</p>
+      ))
+    )}
+  </div>
+)}
 
   const logout = () => {
     localStorage.clear();
@@ -53,28 +70,28 @@ export default function ProviderTopbar({ name, role }) {
           {showProfile && (
             <div className="absolute right-0 mt-3 w-48 bg-white text-black rounded-lg shadow-lg p-3 z-50">
               <button
-  onClick={() => navigate("/provider/profile")}
-  className="block w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
->
-  Profile
-</button>
+                onClick={() => navigate("/provider/profile")}
+                className="block w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
+                >
+                Profile
+                </button>
 
-<button
-  onClick={() => navigate("/provider/settings")}
-  className="block w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
->
-  Settings
-</button>
+                <button
+                onClick={() => navigate("/provider/settings")}
+                className="block w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
+                >
+                Settings
+                </button>
 
-<button
-  onClick={() => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  }}
-  className="block w-full text-left px-3 py-2 text-red-500 hover:bg-gray-100 rounded"
->
-  Logout
-</button>
+                <button
+                onClick={() => {
+                    localStorage.removeItem("token");
+                    navigate("/login");
+                }}
+                className="block w-full text-left px-3 py-2 text-red-500 hover:bg-gray-100 rounded"
+                >
+                Logout
+                </button>
             </div>
           )}
         </div>
