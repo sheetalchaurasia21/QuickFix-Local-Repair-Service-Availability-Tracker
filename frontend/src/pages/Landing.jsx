@@ -7,7 +7,7 @@ function Landing() {
     <div className="font-sans">
 
       {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-10 py-4 bg-green-900 text-white">
+      <nav className="flex justify-between items-center px-15 py-10 bg-green-900 text-white">
         <h1 className="text-xl font-bold">QuickFix</h1>
 
         <div className="space-x-3">
