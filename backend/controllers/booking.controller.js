@@ -9,16 +9,6 @@ export const bookIssue = async (req, res) => {
     if (!providerId || !serviceRequested || !date || !time) {
       return res.status(400).json({ message: "Required fields missing" });
     }
-
-    // const provider = await Provider.findById(providerId);
-    // if (!provider) {
-    //   return res.status(404).json({ message: "Provider not found" });
-    // }
-
-    // if (!provider.isAvailableNow) {
-    //   return res.status(400).json({ message: "Provider not available right now" });
-    // }
-
     const booking = await Booking.create({
       userId: customerId,
       providerId,
@@ -37,7 +27,6 @@ export const bookIssue = async (req, res) => {
 
 export const updateBookingStatus = async (req, res) => {
   try {
-
     const providerId = req.user.id;
     const { bookingId } = req.params;
     const { status } = req.body;
@@ -49,9 +38,7 @@ export const updateBookingStatus = async (req, res) => {
   "ongoing",
   "completed",
   "cancelled"
-];
-
-    
+];  
     if (!allowedStatus.includes(status)) {
   return res.status(400).json({ message: "Invalid status" });
 }
@@ -71,7 +58,6 @@ export const updateBookingStatus = async (req, res) => {
 
     booking.status = status;
     await booking.save();
-
     res.status(200).json({ message: "Status updated", booking });
 
   } catch (err) {
@@ -88,20 +74,15 @@ export const cancelBooking = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
-
     if (booking.userId.toString() !== customerId) {
       return res.status(403).json({ message: "Not authorized" });
     }
-
     if (booking.status === "completed") {
       return res.status(400).json({ message: "Cannot cancel completed booking" });
     }
-
     booking.status = "cancelled";
     await booking.save();
-
     res.status(200).json({ message: "Booking cancelled", booking });
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

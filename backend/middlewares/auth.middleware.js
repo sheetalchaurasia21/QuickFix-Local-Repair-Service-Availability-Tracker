@@ -12,7 +12,7 @@ function auth(req, res, next) {
     req.user = decoded;
     next();
   } catch (err) {
-    console.log("AUTH ERROR 👉", err.message);
+    console.log("AUTH ERROR", err.message);
     return res.status(401).send({ message: "Invalid Token" });
   }
 }

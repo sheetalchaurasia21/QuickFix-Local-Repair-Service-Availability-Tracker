@@ -29,19 +29,16 @@ app.use(cors({
 app.use(cookieParser())
 app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
-// app.get("/", (req, res)=>{
-//     res.send("Hello World")
-// })
-
 app.use('/api/customer',customerRouter)
 app.use('/api/provider',providerRouter)
 app.use('/api/booking',bookingRouter)
 app.use("/api/admin", adminRouter);
 
+app.get('/', (req, res) => {
+    res.send("Hello World")
+})
 
-
-
-const PORT=process.env.PORT || 8000;
+const PORT=process.env.PORT;
 
 app.listen(PORT, () =>{
     console.log(`Server started at http://localhost:${PORT}`)
@@ -50,5 +47,4 @@ app.listen(PORT, () =>{
 
 cron.schedule("* * * * *", () => {
   updateToOngoingIfTimeMatches();
-//   console.log("⏱ Booking status checker running...");
 });
